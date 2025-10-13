@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.mes.dao.Standard2DAO">
+
+	<!-- 전체 조회 -->
+	<select id="selectAll" resultType="kr.or.mes.dto.Standard2DTO">
+		SELECT
+		item_code AS itemCode,
+		item_name AS itemName,
+		item_type AS itemType,
+		unit,
+		created_date AS createdDate,
+		updated_date AS updatedDate,
+		created_by AS createdBy,
+		updated_by AS updatedBy
+		FROM Standard2
+		ORDER BY created_date DESC
+	</select>
+
+	<!-- 단건 조회 -->
+	<select id="selectById" parameterType="String"
+		resultType="kr.or.mes.dto.Standard2DTO">
+		SELECT
+		item_code AS itemCode,
+		item_name AS itemName,
+		item_type AS itemType,
+		unit,
+		created_date AS createdDate,
+		updated_date AS updatedDate,
+		created_by AS createdBy,
+		updated_by AS updatedBy
+		FROM Standard2
+		WHERE item_code = #{itemCode}
+	</select>
+
+	<!-- 등록 -->
+	<insert id="insert" parameterType="kr.or.mes.dto.Standard2DTO">
+		INSERT INTO Standard2 (
+		item_name, item_type, unit, created_by
+		) VALUES (
+		#{itemName}, #{itemType}, #{unit}, 'admin'
+		)
+	</insert>
+
+	<!-- 수정 -->
+	<update id="update" parameterType="kr.or.mes.dto.Standard2DTO">
+		UPDATE Standard2
+		SET
+		item_name = #{itemName},
+		item_type = #{itemType},
+		unit = #{unit},
+		updated_by = #{updatedBy},
+		updated_date = SYSDATE
+		WHERE item_code = #{itemCode}
+	</update>
+
+	<!-- 삭제 -->
+	<delete id="delete" parameterType="String">
+		DELETE FROM Standard2 WHERE item_code = #{itemCode}
+	</delete>
+
+</mapper>
