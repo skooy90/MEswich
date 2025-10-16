@@ -52,11 +52,8 @@ public class QualityController {
      * @return 품질관리 페이지로 리다이렉트
      */
     @PostMapping("/startInspection")
-    public String startInspection(
-            @RequestParam String inspectionNo,
-            @RequestParam String inspectorName) {
-        
-        qualityService.startInspection(inspectionNo, inspectorName, inspectorName);
+    public String startInspection(Quality2DTO dto) {
+        qualityService.startInspection(dto.getInspectionNo(), dto.getInspectorName(), dto.getInspectorName());
         return "redirect:/mes/quality";
     }
 
@@ -91,13 +88,8 @@ public class QualityController {
      * @return 품질관리 페이지로 리다이렉트
      */
     @PostMapping("/completeInspection")
-    public String completeInspection(
-            @RequestParam String inspectionNo,
-            @RequestParam Integer goodQty,
-            @RequestParam Integer defectQty,
-            @RequestParam(required = false) String defectReason) {
-        
-        qualityService.completeInspection(inspectionNo, goodQty, defectQty, defectReason);
+    public String completeInspection(Quality2DTO dto) {
+        qualityService.completeInspection(dto.getInspectionNo(), dto.getGoodQty(), dto.getDefectQty(), dto.getDefectReason());
         return "redirect:/mes/quality";
     }
 
@@ -129,8 +121,8 @@ public class QualityController {
      * @return 품질관리 페이지로 리다이렉트
      */
     @GetMapping("/transferToInventory")
-    public String transferToInventory(@RequestParam String inspectionNo) {
-        // 재고관리로 전달 로직 (추후 재고관리 모듈과 연동)
+    public String transferToInventory(Quality2DTO dto) {
+        // 재고관리로 전달 로직
         return "redirect:/mes/quality";
     }
 }
