@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mes.mappers.QualityManagementMapper">
+
+    <!-- 공통 SELECT 절 정의 -->
+    <sql id="selectQualityColumns">
+        q.inspection_no as inspectionNo,
+        q.work_order_no as workOrderNo,
+        q.lot_number as lotNumber,
+        q.status,
+        q.inspector_id as inspectorId,
+        q.inspector_name as inspectorName,
+        q.good_qty as goodQty,
+        q.defect_qty as defectQty,
+        q.defect_reason as defectReason,
+        q.inspection_date as inspectionDate,
+        q.created_date as createdDate,
+        q.updated_date as updatedDate,
+        q.created_by as createdBy,
+        q.updated_by as updatedBy,
+        w.product_code as productCode,
+        s.item_name as productName,
+        w.planned_qty as plannedQty,
+        w.actual_qty as actualQty,
+        w.worker_id as workerId
+    </sql>
+
+    <!-- 공통 FROM 절 정의 -->
+    <sql id="selectQualityFrom">
+        FROM Quality2 q
+        LEFT JOIN Work_Orders2 w ON q.work_order_no = w.work_order_no
+        LEFT JOIN Standard2 s ON w.product_code = s.item_code
+    </sql>
+
+    <!-- 품질검사 조회 (통합) -->
+    <select id="selectAllQuality" parameterType="kr.or.mes.dto.Quality2DTO" resultType="kr.or.mes.dto.Quality2DTO">
+        SELECT 
+        <include refid="selectQualityColumns" />
+        <include refid="selectQualityFrom" />
+        <where>
+            <if test="status != null and status != ''">
+                AND q.status = #{status}
+            </if>
+            <if test="workOrderNo != null and workOrderNo != ''">
+                AND q.work_order_no = #{workOrderNo}
+            </if>
+            <if test="lotNumber != null and lotNumber != ''">
+                AND q.lot_number = #{lotNumber}
+            </if>
+            <if test="inspectionNo != null and inspectionNo != ''">
+                AND q.inspection_no = #{inspectionNo}
+            </if>
+            <if test="inspectorName != null and inspectorName != ''">
+                AND q.inspector_name LIKE '%' || #{inspectorName} || '%'
+            </if>
+        </where>
+        ORDER BY q.created_date DESC
+    </select>
+
+    <!-- 품질검사 등록 -->
+    <insert id="insertQuality" parameterType="kr.or.mes.dto.Quality2DTO">
+        <selectKey keyProperty="inspectionNo" resultType="String" order="BEFORE">
+            SELECT 'QI' || TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') FROM DUAL
+        </selectKey>
+        INSERT INTO Quality2 (
+            inspection_no,
+            work_order_no,
+            lot_number,
+            status,
+            created_date
+        ) VALUES (
+            #{inspectionNo},
+            #{workOrderNo},
+            #{lotNumber},
+            #{status},
+            SYSDATE
+        )
+    </insert>
+
+    <!-- 품질검사 수정 -->
+    <update id="updateQuality" parameterType="kr.or.mes.dto.Quality2DTO">
+        UPDATE Quality2 SET
+            work_order_no = #{workOrderNo},
+            lot_number = #{lotNumber},
+            status = #{status},
+            inspector_id = #{inspectorId},
+            inspector_name = #{inspectorName},
+            good_qty = #{goodQty},
+            defect_qty = #{defectQty},
+            defect_reason = #{defectReason},
+            inspection_date = #{inspectionDate},
+            updated_date = SYSDATE,
+            updated_by = #{updatedBy}
+        WHERE inspection_no = #{inspectionNo}
+    </update>
+
+    <!-- 품질검사 삭제 -->
+    <delete id="deleteQuality" parameterType="string">
+        DELETE FROM Quality2 WHERE inspection_no = #{inspectionNo}
+    </delete>
+
+</mapper>

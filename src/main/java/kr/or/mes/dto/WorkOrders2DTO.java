@@ -11,6 +11,7 @@ public class WorkOrders2DTO {
     private String workOrderNo;     // 작업 지시 번호
     private String lotNumber;       // LOT 번호
     private String productCode;     // 제품 코드
+    private String productName;     // 제품명 (JOIN으로 가져옴)
     private int plannedQty;         // 계획 수량
     private Integer actualQty;      // 실제 수량
     private String status;          // 상태 (READY, IN_PROGRESS, DONE, CANCELLED)

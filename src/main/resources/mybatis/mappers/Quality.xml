@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mes.mappers.Quality">
+
+	<!-- 모든 품질검사 조회 (Work_Orders2, Standard2 테이블과 조인) -->
+	<select id="selectAllQuality"
+		resultType="kr.or.mes.dto.Quality2DTO">
+		SELECT
+		q.inspection_no as inspectionNo,
+		q.work_order_no as workOrderNo,
+		q.lot_number as lotNumber,
+		q.status,
+		q.inspector_id as inspectorId,
+		q.inspector_name as inspectorName,
+		q.good_qty as goodQty,
+		q.defect_qty as defectQty,
+		q.defect_reason as defectReason,
+		q.inspection_date as inspectionDate,
+		q.created_date as createdDate,
+		q.updated_date as updatedDate,
+		q.created_by as createdBy,
+		q.updated_by as updatedBy,
+		w.product_code as productCode,
+		s.item_name as productName,
+		w.planned_qty as plannedQty,
+		w.actual_qty as actualQty,
+		w.worker_id as workerId
+		FROM Quality2 q
+		LEFT JOIN Work_Orders2 w ON q.work_order_no = w.work_order_no
+		LEFT JOIN Standard2 s ON w.product_code = s.item_code
+		<where>
+			<if test="status != null and status != ''">
+				AND q.status = #{status}
+			</if>
+		</where>
+		ORDER BY q.created_date DESC
+	</select>
+
+
+
+
+
+</mapper>

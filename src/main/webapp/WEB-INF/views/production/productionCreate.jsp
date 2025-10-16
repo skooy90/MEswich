@@ -166,7 +166,7 @@
                 </div>
             </c:if>
             
-            <form method="post" action="/production/create" id="productionForm">
+            <form method="post" action="/mes/production/create" id="productionForm">
                 <div class="form-group">
                     <label for="productCode">제품코드 *</label>
                     <select id="productCode" name="productCode" required>

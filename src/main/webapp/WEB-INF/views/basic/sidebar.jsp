@@ -5,9 +5,10 @@
     </div>
     <nav class="side-menu">
         <ul>
-            <li><a href="#">📊 대시보드</a></li>
-            <li><a href="#">🏭 생산 관리</a></li>
-            <li><a href="#">🧾 작업 지시</a></li>
+            <li><a href="/mes/">📊 대시보드</a></li>
+            <li><a href="/mes/production/list">🏭 생산 관리</a></li>
+            <li><a href="/mes/work">🧾 작업 지시</a></li>
+            <li><a href="/mes/quality">🔍 품질 관리</a></li>
             <li><a href="#">📦 재고 관리</a></li>
             <li><a href="#">🔧 기준 정보</a></li>
             <li><a href="#">👤 사용자 관리</a></li>

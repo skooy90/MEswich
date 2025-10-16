@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -243,17 +244,17 @@
         <!-- 검색 영역 -->
         <div class="search-area">
             <form class="search-form" method="get" action="/production/search">
-                <input type="text" name="lotNumber" placeholder="LOT번호" value="${searchParams.lotNumber}" />
-                <input type="text" name="productCode" placeholder="제품코드" value="${searchParams.productCode}" />
+                <input type="text" name="lotNumber" placeholder="LOT번호" value="${searchCondition.lotNumber}" />
+                <input type="text" name="productCode" placeholder="제품코드" value="${searchCondition.productCode}" />
                 <select name="status">
                     <option value="">전체 상태</option>
-                    <option value="PLANNED" ${searchParams.status == 'PLANNED' ? 'selected' : ''}>계획</option>
-                    <option value="IN_PROGRESS" ${searchParams.status == 'IN_PROGRESS' ? 'selected' : ''}>진행중</option>
-                    <option value="COMPLETED" ${searchParams.status == 'COMPLETED' ? 'selected' : ''}>완료</option>
-                    <option value="CANCELLED" ${searchParams.status == 'CANCELLED' ? 'selected' : ''}>취소</option>
+                    <option value="PLANNED" ${searchCondition.status == 'PLANNED' ? 'selected' : ''}>계획</option>
+                    <option value="IN_PROGRESS" ${searchCondition.status == 'IN_PROGRESS' ? 'selected' : ''}>진행중</option>
+                    <option value="COMPLETED" ${searchCondition.status == 'COMPLETED' ? 'selected' : ''}>완료</option>
+                    <option value="CANCELLED" ${searchCondition.status == 'CANCELLED' ? 'selected' : ''}>취소</option>
                 </select>
                 <button type="submit">🔍 검색</button>
-                <a href="/mes/production/create" class="btn-create">➕ 생산계획추가</a>
+                <a href="create" class="btn-create">➕ 생산계획추가</a>
             </form>
         </div>
 
@@ -281,7 +282,7 @@
                                 <tr>
                                     <td>${production.lotNumber}</td>
                                     <td>${production.productCode}</td>
-                                    <td>${production.productName}</td>
+                                    <td><a href="/mes/production/detail?lotNumber=${production.lotNumber}" style="color: #007bff; text-decoration: none;">${production.productName}</a></td>
                                     <td>${production.plannedQty}개</td>
                                     <td>${production.actualQty != null ? production.actualQty : 0}개</td>
                                     <td>
@@ -295,19 +296,16 @@
                                             </c:choose>
                                         </span>
                                     </td>
-                                    <td>${production.plannedStartDate}</td>
-                                    <td>${production.plannedEndDate}</td>
-                                    <td>${production.createdDate}</td>
+                                    <td><fmt:formatDate value="${production.plannedStartDate}" pattern="yyyy-MM-dd" /></td>
+                                    <td><fmt:formatDate value="${production.plannedEndDate}" pattern="yyyy-MM-dd" /></td>
+                                    <td><fmt:formatDate value="${production.createdDate}" pattern="yyyy-MM-dd" /></td>
                                     <td>
-                                        <a href="/production/detail?lotNumber=${production.lotNumber}" class="btn btn-primary">상세</a>
-                                        <a href="/production/edit?lotNumber=${production.lotNumber}" class="btn btn-warning">수정</a>
-                                        <button onclick="deleteProduction('${production.lotNumber}')" class="btn btn-danger">삭제</button>
-                                        <c:if test="${production.status == 'PLANNED'}">
-                                            <button onclick="updateStatus('${production.lotNumber}', 'IN_PROGRESS')" class="btn btn-success">시작</button>
-                                        </c:if>
-                                        <c:if test="${production.status == 'IN_PROGRESS'}">
-                                            <button onclick="updateStatus('${production.lotNumber}', 'COMPLETED')" class="btn btn-success">완료</button>
-                                        </c:if>
+                                        <a href="/mes/production/edit?lotNumber=${production.lotNumber}" class="btn btn-warning">수정</a>
+                                        <form method="post" action="/mes/production/delete" style="display: inline;">
+                                            <input type="hidden" name="lotNumber" value="${production.lotNumber}" />
+                                            <button type="submit" onclick="return confirm('정말로 삭제하시겠습니까?')" 
+                                                    class="btn btn-danger">삭제</button>
+                                        </form>
                                     </td>
                                 </tr>
                             </c:forEach>
@@ -338,65 +336,7 @@
     </main>
 
     <script>
-        /**
-         * 생산 LOT 삭제 기능
-         * @param {string} lotNumber - 삭제할 LOT번호
-         */
-        function deleteProduction(lotNumber) {
-            if (confirm('정말로 이 생산 LOT를 삭제하시겠습니까?')) {
-                fetch('/production/delete', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'lotNumber=' + encodeURIComponent(lotNumber)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        alert(data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('삭제 중 오류가 발생했습니다.');
-                });
-            }
-        }
 
-        /**
-         * 생산 LOT 상태 업데이트 기능
-         * @param {string} lotNumber - LOT번호
-         * @param {string} status - 새로운 상태
-         */
-        function updateStatus(lotNumber, status) {
-            const statusText = status === 'IN_PROGRESS' ? '진행중' : '완료';
-            if (confirm('이 생산 LOT를 ' + statusText + ' 상태로 변경하시겠습니까?')) {
-                fetch('/production/updateStatus', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'lotNumber=' + encodeURIComponent(lotNumber) + '&status=' + encodeURIComponent(status)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
-                    } else {
-                        alert(data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('상태 업데이트 중 오류가 발생했습니다.');
-                });
-            }
-        }
 
         /**
          * 페이지네이션 기능

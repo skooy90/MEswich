@@ -18,18 +18,21 @@
 
 <!-- 🟢 본문 영역 -->
 <div class="content">
-    <h2>품목 등록</h2>
+    <div class="page-header">
+        <h2>품목 등록</h2>
+        <p class="subtitle">신규 품목의 기본정보를 입력해주세요.</p>
+    </div>
 
-    <form action="${pageContext.request.contextPath}/standard2/insert" method="post">
-        <table border="1">
+    <form action="${pageContext.request.contextPath}/standard2/insert" method="post" class="form-card">
+        <table class="form-table">
             <tr>
                 <th>품목명</th>
-                <td><input type="text" name="itemName" required></td>
+                <td><input type="text" name="itemName" required class="input" placeholder="예) 햄치즈샌드위치"></td>
             </tr>
             <tr>
                 <th>품목유형</th>
                 <td>
-                    <select name="itemType" required>
+                    <select name="itemType" required class="select">
                         <option value="">--선택--</option>
                         <option value="FG">완제품</option>
                         <option value="RM">원자재</option>
@@ -37,26 +40,24 @@
                 </td>
             </tr>
             <tr>
-		    <th>단위</th>
-		    <td>
-		        <select name="unit" required>
-		            <option value="">-- 선택 --</option>
-		            <option value="KG">KG</option>
-		            <option value="L">L</option>
-		            <option value="EA">EA</option>
-		        </select>
-		    </td>
-			</tr>
+                <th>단위</th>
+                <td>
+                    <select name="unit" required class="select">
+                        <option value="">-- 선택 --</option>
+                        <option value="KG">KG</option>
+                        <option value="L">L</option>
+                        <option value="EA">EA</option>
+                    </select>
+                </td>
+            </tr>
         </table>
         <div class="btn-area">
-            <button type="submit">등록</button>
-            <button type="button" onclick="location.href='${pageContext.request.contextPath}/standard2/list'">목록으로</button>
+            <button type="submit" class="btn btn-primary">등록</button>
+            <button type="button" class="btn btn-secondary" onclick="location.href='${pageContext.request.contextPath}/standard2/list'">목록으로</button>
         </div>
     </form>
 </div>
 
-<!-- 하단 푸터 -->
-<jsp:include page="/WEB-INF/views/basic/footer.jsp" />
 
 <!-- 🟢 페이지 레이아웃 및 폼 디자인 -->
 <style>
@@ -66,59 +67,79 @@
     padding: 20px;
 }
 
+.page-header {
+    margin-bottom: 18px;
+}
+
 h2 {
-    margin-bottom: 20px;
+    margin: 0 0 6px 0;
     color: #2c3e50;
 }
 
-table {
-    border-collapse: collapse;
-    width: 400px;
-    background: #fff;
+.subtitle {
+    margin: 0;
+    color: #6c757d;
+    font-size: 13px;
 }
 
-th, td {
-    border: 1px solid #ccc;
-    padding: 8px 10px;
+.form-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 16px;
+    width: 520px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+}
+
+.form-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.form-table th, .form-table td {
+    border: 1px solid #edf2f7;
+    padding: 10px 12px;
     text-align: left;
 }
 
-th {
-    background-color: #ecf0f1;
-    width: 120px;
+.form-table th {
+    background-color: #f8f9fa;
+    width: 140px;
 }
 
-input[type="text"], select {
-    width: 90%;
-    padding: 6px;
+.input, .select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
     box-sizing: border-box;
+}
+
+.input:focus, .select:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 2px rgba(0,123,255,.15);
 }
 
 .btn-area {
-    margin-top: 20px;
+    margin-top: 16px;
+    display: flex;
+    gap: 8px;
 }
 
-button {
-    padding: 8px 14px;
+.btn {
+    padding: 10px 16px;
     border: none;
-    border-radius: 5px;
-    background-color: #2c3e50;
-    color: white;
+    border-radius: 6px;
     cursor: pointer;
+    font-weight: 600;
 }
 
-button:hover {
-    background-color: #34495e;
-}
-
-select {
-    width: 95%;
-    padding: 6px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    box-sizing: border-box;
-}
+.btn-primary { background-color: #2c3e50; color: #fff; }
+.btn-primary:hover { background-color: #34495e; }
+.btn-secondary { background-color: #adb5bd; color: #fff; }
+.btn-secondary:hover { background-color: #9aa2a9; }
 </style>
 
 </body>

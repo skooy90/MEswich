@@ -3,7 +3,7 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="mes.mappers.Production2Mapper">
+<mapper namespace="mes.mappers.Production2">
 
     <!-- 생산 LOT 전체 조회 (Standard 테이블과 조인) -->
     <select id="selectAllProduction" resultType="kr.or.mes.dto.Production2DTO">
@@ -28,7 +28,7 @@
     </select>
 
     <!-- 생산 LOT 조건별 검색 (Standard 테이블과 조인) -->
-    <select id="selectProductionByCondition" parameterType="map" resultType="kr.or.mes.dto.Production2DTO">
+    <select id="selectProductionByCondition" parameterType="kr.or.mes.dto.Production2DTO" resultType="kr.or.mes.dto.Production2DTO">
         SELECT 
             p.lot_number as lotNumber,
             p.product_code as productCode,
@@ -123,7 +123,7 @@
     </delete>
 
     <!-- 생산 LOT 상태 업데이트 -->
-    <update id="updateProductionStatus" parameterType="map">
+    <update id="updateProductionStatus" parameterType="kr.or.mes.dto.Production2DTO">
         UPDATE Production2 SET
             status = #{status},
             updated_date = SYSDATE,
@@ -132,7 +132,7 @@
     </update>
 
     <!-- 생산 LOT 실제 수량 업데이트 -->
-    <update id="updateActualQuantity" parameterType="map">
+    <update id="updateActualQuantity" parameterType="kr.or.mes.dto.Production2DTO">
         UPDATE Production2 SET
             actual_qty = #{actualQty},
             updated_date = SYSDATE,
@@ -150,6 +150,52 @@
         FROM Standard2
         WHERE item_type = 'FG'
         ORDER BY item_code
+    </select>
+
+    <!-- 상태별 생산 LOT 조회 (Standard 테이블과 조인) -->
+    <select id="selectProductionByStatus" parameterType="string" resultType="kr.or.mes.dto.Production2DTO">
+        SELECT 
+            p.lot_number as lotNumber,
+            p.product_code as productCode,
+            s.item_name as productName,
+            p.planned_qty as plannedQty,
+            p.actual_qty as actualQty,
+            p.status,
+            p.planned_start_date as plannedStartDate,
+            p.planned_end_date as plannedEndDate,
+            p.actual_start_date as actualStartDate,
+            p.actual_end_date as actualEndDate,
+            p.created_date as createdDate,
+            p.updated_date as updatedDate,
+            p.created_by as createdBy,
+            p.updated_by as updatedBy
+        FROM Production2 p
+        LEFT JOIN Standard2 s ON p.product_code = s.item_code
+        WHERE p.status = #{status}
+        ORDER BY p.created_date DESC
+    </select>
+
+    <!-- 상태별 생산 LOT 조회 -->
+    <select id="selectByStatus" parameterType="string" resultType="kr.or.mes.dto.Production2DTO">
+        SELECT 
+            p.lot_number as lotNumber,
+            p.product_code as productCode,
+            s.item_name as productName,
+            p.planned_qty as plannedQty,
+            p.actual_qty as actualQty,
+            p.status,
+            p.planned_start_date as plannedStartDate,
+            p.planned_end_date as plannedEndDate,
+            p.actual_start_date as actualStartDate,
+            p.actual_end_date as actualEndDate,
+            p.created_date as createdDate,
+            p.updated_date as updatedDate,
+            p.created_by as createdBy,
+            p.updated_by as updatedBy
+        FROM Production2 p
+        LEFT JOIN Standard2 s ON p.product_code = s.item_code
+        WHERE p.status = #{status}
+        ORDER BY p.created_date DESC
     </select>
 
 </mapper>
