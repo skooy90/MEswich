@@ -19,7 +19,9 @@ public class Production2DTO {
     private String productName;         // 제품명 (Standard 테이블과 조인)
     private int plannedQty;             // 계획 수량
     private Integer actualQty;          // 실제 수량
-    private String status;              // 상태 (PLANNED, IN_PROGRESS, COMPLETED, CANCELLED)
+    private String status;              
+//    PLANNED, IN_PROGRESS, COMPLETED  전체 상태일때만 사용
+//    Pruduction,work,quality,inventory는 금일 작업 상태 일때 적용    
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date plannedStartDate;      // 계획 시작일
     @DateTimeFormat(pattern = "yyyy-MM-dd")

@@ -3,103 +3,104 @@
 
 <mapper namespace="kr.or.mes.dao.WorkOrders.WorkOrdersDAO">
 
-    <!-- 공통 SELECT 절 정의 -->
-    <sql id="selectWorkOrderColumns">
-        w.work_order_no as workOrderNo,
-        w.lot_number as lotNumber,
-        w.product_code as productCode,
-        s.item_name as productName,
-        w.planned_qty as plannedQty,
-        w.actual_qty as actualQty,
-        w.status,
-        w.worker_id as workerId,
-        w.start_date as startDate,
-        w.end_date as endDate,
-        w.created_date as createdDate,
-        w.updated_date as updatedDate,
-        w.created_by as createdBy,
-        w.updated_by as updatedBy
-    </sql>
+	<!-- 공통 SELECT 절 정의 -->
+	<sql id="selectWorkOrderColumns">
+		w.work_order_no as workOrderNo,
+		w.lot_number as lotNumber,
+		w.product_code as productCode,
+		s.item_name as productName,
+		w.planned_qty as plannedQty,
+		w.actual_qty as actualQty,
+		w.status,
+		w.worker_id as workerId,
+		w.start_date as startDate,
+		w.end_date as endDate,
+		w.created_date as createdDate,
+		w.updated_date as updatedDate,
+		w.created_by as createdBy,
+		w.updated_by as updatedBy
+	</sql>
 
-    <!-- 공통 FROM 절 정의 -->
-    <sql id="selectWorkOrderFrom">
-        FROM Work_Orders2 w
-        LEFT JOIN Standard2 s ON w.product_code = s.item_code
-    </sql>
+	<!-- 공통 FROM 절 정의 -->
+	<sql id="selectWorkOrderFrom">
+		FROM Work_Orders2 w
+		LEFT JOIN Standard2 s ON w.product_code = s.item_code
+	</sql>
 
-    <!-- 작업지시서 조회 (통합) -->
-    <select id="selectWorkOrdersByCondition" parameterType="kr.or.mes.dto.WorkOrders2DTO" resultType="kr.or.mes.dto.WorkOrders2DTO">
-        SELECT 
-        <include refid="selectWorkOrderColumns" />
-        <include refid="selectWorkOrderFrom" />
-        ORDER BY w.created_date DESC
-    </select>
+	<!-- 생산계획에서 작업지시서 자동 생성 -->
+	<insert id="insertWorkOrderFromProduction"
+		parameterType="kr.or.mes.dto.WorkOrders2DTO">
+		<selectKey keyProperty="workOrderNo" resultType="String"
+			order="BEFORE">
+			SELECT 'WO' || TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') FROM DUAL
+		</selectKey>
+		INSERT INTO Work_Orders2 (
+		work_order_no,
+		lot_number,
+		product_code,
+		planned_qty,
+		status,
+		created_date
+		)
+		SELECT
+		#{workOrderNo},
+		p.lot_number,
+		p.product_code,
+		p.planned_qty,
+		'READY',
+		SYSDATE
+		FROM Production2 p
+		WHERE p.lot_number = #{lotNumber}
+	</insert>
 
-    <!-- 작업지시번호로 단건 조회 -->
-    <select id="selectWorkOrderByNo" parameterType="string" resultType="kr.or.mes.dto.WorkOrders2DTO">
-        SELECT 
-        <include refid="selectWorkOrderColumns" />
-        <include refid="selectWorkOrderFrom" />
-        WHERE w.work_order_no = #{workOrderNo}
-    </select>
+
+	<!-- 작업지시서 조회 (통합) -->
+	<select id="selectWorkOrdersByCondition"
+		parameterType="kr.or.mes.dto.WorkOrders2DTO"
+		resultType="kr.or.mes.dto.WorkOrders2DTO">
+		SELECT
+		<include refid="selectWorkOrderColumns" />
+		<include refid="selectWorkOrderFrom" />
+		ORDER BY w.created_date DESC
+	</select>
+
+	<!-- 작업지시번호로 단건 조회 -->
+	<select id="selectWorkOrderByNo" parameterType="string"
+		resultType="kr.or.mes.dto.WorkOrders2DTO">
+		SELECT
+		<include refid="selectWorkOrderColumns" />
+		<include refid="selectWorkOrderFrom" />
+		WHERE w.work_order_no = #{workOrderNo}
+	</select>
 
 
-    <!-- 작업지시서 등록 (work_order_no 자동 생성) -->
-    <insert id="insertWorkOrder" parameterType="kr.or.mes.dto.WorkOrders2DTO">
-        <selectKey keyProperty="workOrderNo" resultType="String" order="BEFORE">
-            SELECT 'WO' || TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') FROM DUAL
-        </selectKey>
-        INSERT INTO Work_Orders2 (
-            work_order_no,
-            lot_number,
-            product_code,
-            planned_qty,
-            status,
-            created_date
-        ) VALUES (
-            #{workOrderNo},
-            #{lotNumber},
-            #{productCode},
-            #{plannedQty},
-            #{status},
-            SYSDATE
-        )
-    </insert>
+	<!-- 작업지시서 수정 -->
+	<update id="updateWorkOrder"
+		parameterType="kr.or.mes.dto.WorkOrders2DTO">
+		UPDATE Work_Orders2 SET
+		actual_qty = #{actualQty}
+		WHERE work_order_no = #{workOrderNo}
+	</update>
 
-    <!-- 작업지시서 수정 -->
-    <update id="updateWorkOrder" parameterType="kr.or.mes.dto.WorkOrders2DTO">
-        UPDATE Work_Orders2 SET
-            lot_number = #{lotNumber},
-            product_code = #{productCode},
-            planned_qty = #{plannedQty},
-            actual_qty = #{actualQty},
-            status = #{status},
-            worker_id = #{workerId},
-            start_date = #{startDate},
-            end_date = #{endDate},
-            updated_date = SYSDATE,
-            updated_by = #{updatedBy}
-        WHERE work_order_no = #{workOrderNo}
-    </update>
+	<!-- 작업지시서 상태 업데이트 -->
+	<update id="updateWorkOrderStatus"
+		parameterType="kr.or.mes.dto.WorkOrders2DTO">
+		UPDATE Work_Orders2 SET
+		status = #{status},
+		<if test="actualQty != null">
+			actual_qty = #{actualQty}
+		</if>
+		<if test="endDate != null">
+			end_date = #{endDate}
+		</if>
+		updated_date = SYSDATE,
+		updated_by = #{updatedBy}
+		WHERE work_order_no = #{workOrderNo}
+	</update>
 
-    <!-- 작업지시서 상태 업데이트 -->
-    <update id="updateWorkOrderStatus" parameterType="kr.or.mes.dto.WorkOrders2DTO">
-        UPDATE Work_Orders2 SET
-            status = #{status},
-            <if test="actualQty != null">
-                actual_qty = #{actualQty},
-            </if>
-            <if test="endDate != null">
-                end_date = #{endDate},
-            </if>
-            updated_date = SYSDATE,
-            updated_by = #{updatedBy}
-        WHERE work_order_no = #{workOrderNo}
-    </update>
-
-    <!-- 작업지시서 삭제 -->
-    <delete id="deleteWorkOrder" parameterType="string">
-        DELETE FROM Work_Orders2 WHERE work_order_no = #{workOrderNo}
-    </delete>
+	<!-- 작업지시서 삭제 -->
+	<delete id="deleteWorkOrder" parameterType="string">
+		DELETE FROM Work_Orders2 WHERE work_order_no = #{workOrderNo}
+	</delete>
 
 </mapper>

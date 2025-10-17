@@ -16,11 +16,18 @@ public class WorkOrdersDAOmpl implements WorkOrderDAO {
     @Autowired
     private SqlSession sqlSession;
     
+    // 작업지시서 자동 생성
+    
+    @Override
+    public int insertWorkOrderFromProduction(WorkOrders2DTO workOrder) {
+        return sqlSession.insert("kr.or.mes.dao.WorkOrders.WorkOrdersDAO.insertWorkOrderFromProduction", workOrder);
+    }
     /**
      * 작업지시서 조회
      * @param dto 검색 조건이 포함된 WorkOrders2DTO
      * @return 조건에 맞는 작업지시서 목록
      */
+    
     @Override
     public List<WorkOrders2DTO> selectWorkOrdersByCondition(WorkOrders2DTO dto) {
         return sqlSession.selectList("kr.or.mes.dao.WorkOrders.WorkOrdersDAO.selectWorkOrdersByCondition", dto);
@@ -36,15 +43,6 @@ public class WorkOrdersDAOmpl implements WorkOrderDAO {
         return sqlSession.selectOne("kr.or.mes.dao.WorkOrders.WorkOrdersDAO.selectWorkOrderByNo", workOrderNo);
     }
     
-    /**
-     * 작업지시서 등록
-     * @param workOrder 등록할 작업지시서 정보
-     * @return 등록된 행 수
-     */
-    @Override
-    public int insertWorkOrder(WorkOrders2DTO workOrder) {
-        return sqlSession.insert("kr.or.mes.dao.WorkOrders.WorkOrdersDAO.insertWorkOrder", workOrder);
-    }
     
     /**
      * 작업지시서 수정

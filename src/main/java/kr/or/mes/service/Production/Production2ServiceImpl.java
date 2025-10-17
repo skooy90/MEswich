@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import kr.or.mes.dao.production.Production2DAO;
 import kr.or.mes.dto.Production2DTO;
 import kr.or.mes.dto.Standard2DTO;
+import kr.or.mes.service.WorkOrders.WorkOrdersService;
 
 /**
  * 생산관리 Service 구현체
@@ -18,14 +19,21 @@ public class Production2ServiceImpl implements Production2Service {
 
 	@Autowired
 	private Production2DAO productionDAO;
+	@Autowired
+    private WorkOrdersService workOrdersService;
+	
+	// 전체 생산 계획 조회 
+	public List<Production2DTO> selectAll() {
+		return productionDAO.todoselectAll();
+	}
 	
 	/**
-	 * 모든 생산 LOT 조회
+	 * 금일 생산 LOT 조회
 	 * @return 생산 LOT 목록
 	 */
 	@Override
-	public List<Production2DTO> selectAll() {
-		return productionDAO.selectAll();
+	public List<Production2DTO> todoselectAll() {
+		return productionDAO.todoselectAll();
 	}
 	
 	/**
@@ -87,13 +95,24 @@ public class Production2ServiceImpl implements Production2Service {
 			return "계획종료일을 입력해주세요.";
 		}
 		
+		
+		
 		// 등록 실행
 		int result = productionDAO.insert(production);
 		if (result > 0) {
-			return "SUCCESS"; // 성공 시 특별한 메시지
+	        // INSERT 후 최신 LOT번호 조회
+	        List<Production2DTO> latestList = productionDAO.todoselectAll();
+	        if (!latestList.isEmpty()) {
+	            String latestLotNumber = latestList.get(0).getLotNumber();
+	            // 작업지시서 자동 생성
+	            workOrdersService.createWorkOrderFromProduction(latestLotNumber);
+	        }
+	        return "SUCCESS";
 		} else {
 			return "생산 LOT 등록에 실패했습니다.";
 		}
+		
+		
 	}
 	
 	/**
@@ -231,4 +250,138 @@ public class Production2ServiceImpl implements Production2Service {
 		
 		return productionDAO.selectByLotNumber(lotNumber);
 	}
+	
+	// ==================== 전체 생산계획 관련 메서드 ====================
+	
+	/**
+	 * 전체 생산계획 조회
+	 * @return 전체 생산계획 목록
+	 */
+	@Override
+	public List<Production2DTO> selectAllProductionPlans() {
+		return productionDAO.selectAllProductionPlans();
+	}
+	
+	/**
+	 * 전체 생산계획 등록
+	 * @param production 등록할 전체 생산계획 정보
+	 * @return 등록 결과 메시지
+	 */
+	@Override
+	public String createAllProduction(Production2DTO production) {
+		// 비즈니스 로직: 상태 기본값 설정
+		if (production.getStatus() == null || production.getStatus().trim().isEmpty()) {
+			production.setStatus("PLANNED");
+		}
+		
+		// 비즈니스 로직: 필수 필드 유효성 검사
+		if (production.getProductCode() == null || production.getProductCode().trim().isEmpty()) {
+			return "제품코드를 선택해주세요.";
+		}
+		
+		if (production.getPlannedQty() <= 0) {
+			return "계획수량은 1 이상이어야 합니다.";
+		}
+		
+		if (production.getPlannedStartDate() == null) {
+			return "계획시작일을 입력해주세요.";
+		}
+		
+		if (production.getPlannedEndDate() == null) {
+			return "계획종료일을 입력해주세요.";
+		}
+		
+		// 등록 실행
+		int result = productionDAO.insertAllProduction(production);
+		if (result > 0) {
+			return "SUCCESS";
+		} else {
+			return "전체 생산계획 등록에 실패했습니다.";
+		}
+	}
+	
+	// ==================== 금일 생산계획 관련 메서드 ====================
+	
+	/**
+	 * 금일 생산계획 조회
+	 * @return 금일 생산계획 목록
+	 */
+	@Override
+	public List<Production2DTO> selectDailyProductionPlans() {
+		return productionDAO.selectDailyProductionPlans();
+	}
+	
+	/**
+	 * 금일 생산계획 조건별 검색
+	 * @param dto 검색 조건이 담긴 DTO
+	 * @return 검색된 금일 생산계획 목록
+	 */
+	@Override
+	public List<Production2DTO> selectDailyProductionByCondition(Production2DTO dto) {
+		return productionDAO.selectDailyProductionByCondition(dto);
+	}
+	
+	/**
+	 * 금일 생산계획 등록
+	 * @param production 등록할 금일 생산계획 정보
+	 * @return 등록 결과 메시지
+	 */
+	@Override
+	public String createDailyProduction(Production2DTO production) {
+		// 비즈니스 로직: 상태 기본값 설정
+		if (production.getStatus() == null || production.getStatus().trim().isEmpty()) {
+			production.setStatus("PLANNED");
+		}
+		
+		// 비즈니스 로직: 필수 필드 유효성 검사
+		if (production.getProductCode() == null || production.getProductCode().trim().isEmpty()) {
+			return "제품코드를 선택해주세요.";
+		}
+		
+		if (production.getPlannedQty() <= 0) {
+			return "계획수량은 1 이상이어야 합니다.";
+		}
+		
+		if (production.getPlannedStartDate() == null) {
+			return "계획시작일을 입력해주세요.";
+		}
+		
+		if (production.getPlannedEndDate() == null) {
+			return "계획종료일을 입력해주세요.";
+		}
+		
+		// 등록 실행
+		int result = productionDAO.insertDailyProduction(production);
+		if (result > 0) {
+			return "SUCCESS";
+		} else {
+			return "금일 생산계획 등록에 실패했습니다.";
+		}
+	}
+	
+	/**
+	 * 전체 생산계획에서 금일 생산계획 생성용 데이터 조회
+	 * @param lotNumber LOT번호
+	 * @return 전체 생산계획 정보
+	 */
+	@Override
+	public Production2DTO selectProductionForDailySchedule(String lotNumber) {
+		// 비즈니스 로직: LOT번호 유효성 검사
+		if (lotNumber == null || lotNumber.trim().isEmpty()) {
+			return null;
+		}
+		
+		return productionDAO.selectProductionForDailySchedule(lotNumber);
+	}
+	
+	/**
+	 * 금일 생산계획 상태 업데이트
+	 * @param production 상태 업데이트할 금일 생산계획 정보
+	 * @return 업데이트 결과 (1: 성공, 0: 실패)
+	 */
+	@Override
+	public int updateDailyProductionStatus(Production2DTO production) {
+		return productionDAO.updateDailyProductionStatus(production);
+	}
+	
 }

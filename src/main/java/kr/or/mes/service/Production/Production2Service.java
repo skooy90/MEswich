@@ -11,11 +11,15 @@ import kr.or.mes.dto.Standard2DTO;
  */
 public interface Production2Service {
 	
+	//	전체 생산 계획 조회
+	
+	public List<Production2DTO> selectAll();
+	
 	/**
-	 * 모든 생산 LOT 조회
+	 * 금일 모든 생산 LOT 조회
 	 * @return 생산 LOT 목록
 	 */
-	public List<Production2DTO> selectAll();
+	public List<Production2DTO> todoselectAll();
 	
 	/**
 	 * 조건에 따른 생산 LOT 검색
@@ -106,4 +110,56 @@ public interface Production2Service {
 	 * @return 생산 LOT 정보 또는 null
 	 */
 	public Production2DTO getProductionForEdit(String lotNumber);
+	
+	// ==================== 전체 생산계획 관련 메서드 ====================
+	
+	/**
+	 * 전체 생산계획 조회
+	 * @return 전체 생산계획 목록
+	 */
+	public List<Production2DTO> selectAllProductionPlans();
+	
+	/**
+	 * 전체 생산계획 등록
+	 * @param production 등록할 전체 생산계획 정보
+	 * @return 등록 결과 메시지
+	 */
+	public String createAllProduction(Production2DTO production);
+	
+	// ==================== 금일 생산계획 관련 메서드 ====================
+	
+	/**
+	 * 금일 생산계획 조회
+	 * @return 금일 생산계획 목록
+	 */
+	public List<Production2DTO> selectDailyProductionPlans();
+	
+	/**
+	 * 금일 생산계획 조건별 검색
+	 * @param dto 검색 조건이 담긴 DTO
+	 * @return 검색된 금일 생산계획 목록
+	 */
+	public List<Production2DTO> selectDailyProductionByCondition(Production2DTO dto);
+	
+	/**
+	 * 금일 생산계획 등록
+	 * @param production 등록할 금일 생산계획 정보
+	 * @return 등록 결과 메시지
+	 */
+	public String createDailyProduction(Production2DTO production);
+	
+	/**
+	 * 전체 생산계획에서 금일 생산계획 생성용 데이터 조회
+	 * @param lotNumber LOT번호
+	 * @return 전체 생산계획 정보
+	 */
+	public Production2DTO selectProductionForDailySchedule(String lotNumber);
+	
+	/**
+	 * 금일 생산계획 상태 업데이트
+	 * @param production 상태 업데이트할 금일 생산계획 정보
+	 * @return 업데이트 결과 (1: 성공, 0: 실패)
+	 */
+	public int updateDailyProductionStatus(Production2DTO production);
+	
 }

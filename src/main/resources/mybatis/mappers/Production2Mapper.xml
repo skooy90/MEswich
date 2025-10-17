@@ -3,7 +3,7 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="mes.mappers.Production2">
+<mapper namespace="mes.mappers.qqqqqqqProduction2">
 
     <!-- 생산 LOT 전체 조회 (Standard 테이블과 조인) -->
     <select id="selectAllProduction" resultType="kr.or.mes.dto.Production2DTO">

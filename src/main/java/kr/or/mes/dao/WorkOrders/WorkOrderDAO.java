@@ -9,6 +9,9 @@ import kr.or.mes.dto.WorkOrders2DTO;
  */
 public interface WorkOrderDAO {
     
+	// 자동 작업지시서 등록
+	int insertWorkOrderFromProduction(WorkOrders2DTO workOrder);
+	
     /**
      * 조건별 작업지시서 조회
      * @param dto 검색 조건이 포함된 WorkOrders2DTO
@@ -24,21 +27,14 @@ public interface WorkOrderDAO {
     WorkOrders2DTO selectWorkOrderByNo(String workOrderNo);
     
     /**
-     * 작업지시서 등록
-     * @param workOrder 등록할 작업지시서 정보
-     * @return 등록된 행 수
-     */
-    int insertWorkOrder(WorkOrders2DTO workOrder);
-    
-    /**
-     * 작업지시서 수정
+     * 금일 작업지시서 수정
      * @param workOrder 수정할 작업지시서 정보
      * @return 수정된 행 수
      */
     int updateWorkOrder(WorkOrders2DTO workOrder);
     
     /**
-     * 작업지시서 상태 업데이트
+     * 금일 작업지시서 상태 업데이트
      * @param workOrder 상태 업데이트할 작업지시서 정보
      * @return 업데이트된 행 수
      */
@@ -50,4 +46,7 @@ public interface WorkOrderDAO {
      * @return 삭제된 행 수
      */
     int deleteWorkOrder(String workOrderNo);
+    
+    
+    
 }

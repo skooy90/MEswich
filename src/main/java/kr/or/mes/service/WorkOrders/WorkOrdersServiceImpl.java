@@ -18,6 +18,18 @@ public class WorkOrdersServiceImpl implements WorkOrdersService {
     @Autowired
     private WorkOrderDAO workOrdersDAO;
 
+    
+    // 작업지시서 자동 생성
+    @Override
+    public String createWorkOrderFromProduction(String lotNumber) {
+        WorkOrders2DTO workOrder = new WorkOrders2DTO();
+        workOrder.setLotNumber(lotNumber);
+        workOrder.setStatus("READY");
+        
+        int result = workOrdersDAO.insertWorkOrderFromProduction(workOrder);
+        return result > 0 ? "SUCCESS" : "작업지시서 생성에 실패했습니다.";
+    }
+    
 	/**
 	 * 조건별 작업지시서 조회
 	 * @param dto 검색 조건이 포함된 WorkOrders2DTO
@@ -41,25 +53,6 @@ public class WorkOrdersServiceImpl implements WorkOrdersService {
 		return workOrdersDAO.selectWorkOrderByNo(workOrderNo);
 	}
 
-	/**
-	 * 작업지시서 등록
-	 * @param workOrder 등록할 작업지시서 정보
-	 * @return 성공 시 "SUCCESS", 실패 시 에러 메시지
-	 */
-	@Override
-	public String createWorkOrder(WorkOrders2DTO workOrder) {
-		if (workOrder == null) {
-			return "작업지시서 정보가 필요합니다.";
-		}
-		
-		// 필수 필드 검증
-		if (workOrder.getLotNumber() == null || workOrder.getLotNumber().trim().isEmpty()) {
-			return "LOT번호가 필요합니다.";
-		}
-		
-		int result = workOrdersDAO.insertWorkOrder(workOrder);
-		return result > 0 ? "SUCCESS" : "작업지시서 등록에 실패했습니다.";
-	}
 
 	/**
 	 * 작업지시서 수정
@@ -158,21 +151,6 @@ public class WorkOrdersServiceImpl implements WorkOrdersService {
 	 * @param lotNumber LOT번호
 	 * @return 성공 시 "SUCCESS", 실패 시 에러 메시지
 	 */
-	@Override
-	public String createWorkOrderFromProduction(String lotNumber) {
-		if (lotNumber == null || lotNumber.trim().isEmpty()) {
-			return "LOT번호가 필요합니다.";
-		}
-		
-		// 생산계획에서 작업지시서 생성 로직
-		WorkOrders2DTO workOrder = new WorkOrders2DTO();
-		workOrder.setLotNumber(lotNumber);
-		workOrder.setStatus("READY"); // 작업전 상태로 생성
-		workOrder.setPlannedQty(100); // 기본값, 실제로는 생산계획에서 가져와야 함
-		
-		int result = workOrdersDAO.insertWorkOrder(workOrder);
-		return result > 0 ? "SUCCESS" : "작업지시서 생성에 실패했습니다.";
-	}
 
 	/**
 	 * 생산량 업데이트

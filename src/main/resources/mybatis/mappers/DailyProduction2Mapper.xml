@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mes.mappers.DailyProduction2">
+
+	<!-- 금일 생산계획 전체 조회 (Standard 테이블과 조인, Java 1.6 호환) -->
+	<select id="selectAllDailyProductionPlans" resultType="kr.or.mes.dto.DailyProduction2DTO">
+		SELECT
+		dp.daily_plan_id as dailyPlanId,
+		dp.lot_number as lotNumber,
+		dp.parent_lot_number as parentLotNumber,
+		dp.product_code as productCode,
+		s.item_name as productName,
+		dp.planned_qty as plannedQty,
+		dp.actual_qty as actualQty,
+		dp.status,
+		dp.planned_start_date as plannedStartDate,
+		dp.planned_end_date as plannedEndDate,
+		dp.actual_start_date as actualStartDate,
+		dp.actual_end_date as actualEndDate,
+		dp.worker_id as workerId,
+		dp.created_date as createdDate,
+		dp.updated_date as updatedDate,
+		dp.created_by as createdBy,
+		dp.updated_by as updatedBy,
+		-- Java 1.6 호환을 위한 상태별 필드 설정
+		CASE 
+			WHEN dp.status = 'Production' THEN '계획'
+			WHEN dp.status = 'work' THEN '작업중'
+			WHEN dp.status = 'quality' THEN '품질검사중'
+			WHEN dp.status = 'inventory' THEN '완료'
+			ELSE dp.status
+		END as statusDisplayName,
+		CASE 
+			WHEN dp.status = 'inventory' THEN 1
+			ELSE 0
+		END as completed,
+		CASE 
+			WHEN dp.status IN ('work', 'quality') THEN 1
+			ELSE 0
+		END as inProgress
+		FROM Daily_Production2_Plans dp
+		LEFT JOIN Standard2 s ON dp.product_code = s.item_code
+		ORDER BY dp.created_date DESC
+	</select>
+
+	<!-- 금일 생산계획 조건별 검색 (Standard 테이블과 조인, Java 1.6 호환) -->
+	<select id="selectDailyProductionByCondition" parameterType="kr.or.mes.dto.DailyProduction2DTO"
+		resultType="kr.or.mes.dto.DailyProduction2DTO">
+		SELECT
+		dp.daily_plan_id as dailyPlanId,
+		dp.lot_number as lotNumber,
+		dp.parent_lot_number as parentLotNumber,
+		dp.product_code as productCode,
+		s.item_name as productName,
+		dp.planned_qty as plannedQty,
+		dp.actual_qty as actualQty,
+		dp.status,
+		dp.planned_start_date as plannedStartDate,
+		dp.planned_end_date as plannedEndDate,
+		dp.actual_start_date as actualStartDate,
+		dp.actual_end_date as actualEndDate,
+		dp.worker_id as workerId,
+		dp.created_date as createdDate,
+		dp.updated_date as updatedDate,
+		dp.created_by as createdBy,
+		dp.updated_by as updatedBy,
+		-- Java 1.6 호환을 위한 상태별 필드 설정
+		CASE 
+			WHEN dp.status = 'Production' THEN '계획'
+			WHEN dp.status = 'work' THEN '작업중'
+			WHEN dp.status = 'quality' THEN '품질검사중'
+			WHEN dp.status = 'inventory' THEN '완료'
+			ELSE dp.status
+		END as statusDisplayName,
+		CASE 
+			WHEN dp.status = 'inventory' THEN 1
+			ELSE 0
+		END as completed,
+		CASE 
+			WHEN dp.status IN ('work', 'quality') THEN 1
+			ELSE 0
+		END as inProgress
+		FROM Daily_Production2_Plans dp
+		LEFT JOIN Standard2 s ON dp.product_code = s.item_code
+		<where>
+			<if test="lotNumber != null and lotNumber != ''">
+				AND dp.lot_number LIKE '%' || #{lotNumber} || '%'
+			</if>
+			<if test="parentLotNumber != null and parentLotNumber != ''">
+				AND dp.parent_lot_number LIKE '%' || #{parentLotNumber} || '%'
+			</if>
+			<if test="productCode != null and productCode != ''">
+				AND dp.product_code LIKE '%' || #{productCode} || '%'
+			</if>
+			<if test="status != null and status != ''">
+				AND dp.status = #{status}
+			</if>
+			<if test="workerId != null and workerId != ''">
+				AND dp.worker_id LIKE '%' || #{workerId} || '%'
+			</if>
+			<if test="plannedStartDate != null">
+				AND dp.planned_start_date = #{plannedStartDate}
+			</if>
+		</where>
+		ORDER BY dp.created_date DESC
+	</select>
+
+	<!-- 금일 생산계획 단건 조회 (LOT 번호로) -->
+	<select id="selectDailyProductionByLotNumber" parameterType="string"
+		resultType="kr.or.mes.dto.DailyProduction2DTO">
+		SELECT
+		dp.daily_plan_id as dailyPlanId,
+		dp.lot_number as lotNumber,
+		dp.parent_lot_number as parentLotNumber,
+		dp.product_code as productCode,
+		s.item_name as productName,
+		dp.planned_qty as plannedQty,
+		dp.actual_qty as actualQty,
+		dp.status,
+		dp.planned_start_date as plannedStartDate,
+		dp.planned_end_date as plannedEndDate,
+		dp.actual_start_date as actualStartDate,
+		dp.actual_end_date as actualEndDate,
+		dp.worker_id as workerId,
+		dp.created_date as createdDate,
+		dp.updated_date as updatedDate,
+		dp.created_by as createdBy,
+		dp.updated_by as updatedBy
+		FROM Daily_Production2_Plans dp
+		LEFT JOIN Standard2 s ON dp.product_code = s.item_code
+		WHERE dp.lot_number = #{lotNumber}
+	</select>
+
+	<!-- 금일 생산계획 단건 조회 (daily_plan_id로) -->
+	<select id="selectDailyProductionById" parameterType="string"
+		resultType="kr.or.mes.dto.DailyProduction2DTO">
+		SELECT
+		dp.daily_plan_id as dailyPlanId,
+		dp.lot_number as lotNumber,
+		dp.parent_lot_number as parentLotNumber,
+		dp.product_code as productCode,
+		s.item_name as productName,
+		dp.planned_qty as plannedQty,
+		dp.actual_qty as actualQty,
+		dp.status,
+		dp.planned_start_date as plannedStartDate,
+		dp.planned_end_date as plannedEndDate,
+		dp.actual_start_date as actualStartDate,
+		dp.actual_end_date as actualEndDate,
+		dp.worker_id as workerId,
+		dp.created_date as createdDate,
+		dp.updated_date as updatedDate,
+		dp.created_by as createdBy,
+		dp.updated_by as updatedBy
+		FROM Daily_Production2_Plans dp
+		LEFT JOIN Standard2 s ON dp.product_code = s.item_code
+		WHERE dp.daily_plan_id = #{dailyPlanId}
+	</select>
+
+	<!-- 금일 생산계획 등록 (트리거로 daily_plan_id와 lot_number 자동 생성) -->
+	<insert id="insertDailyProduction" parameterType="kr.or.mes.dto.DailyProduction2DTO">
+		INSERT INTO Daily_Production2_Plans (
+			parent_lot_number,
+			product_code,
+			planned_qty,
+			actual_qty,
+			status,
+			planned_start_date,
+			planned_end_date,
+			actual_start_date,
+			actual_end_date,
+			worker_id,
+			created_by,
+			updated_by
+		) VALUES (
+			#{parentLotNumber},
+			#{productCode},
+			#{plannedQty},
+			#{actualQty},
+			#{status},
+			#{plannedStartDate},
+			#{plannedEndDate},
+			#{actualStartDate},
+			#{actualEndDate},
+			#{workerId},
+			#{createdBy},
+			#{updatedBy}
+		)
+	</insert>
+
+	<!-- 금일 생산계획 수정 -->
+	<update id="updateDailyProduction" parameterType="kr.or.mes.dto.DailyProduction2DTO">
+		UPDATE Daily_Production2_Plans SET
+		product_code = #{productCode},
+		planned_qty = #{plannedQty},
+		actual_qty = #{actualQty},
+		status = #{status},
+		planned_start_date = #{plannedStartDate},
+		planned_end_date = #{plannedEndDate},
+		actual_start_date = #{actualStartDate},
+		actual_end_date = #{actualEndDate},
+		worker_id = #{workerId},
+		updated_date = SYSDATE,
+		updated_by = #{updatedBy}
+		WHERE daily_plan_id = #{dailyPlanId}
+	</update>
+
+	<!-- 금일 생산계획 삭제 (daily_plan_id로) -->
+	<delete id="deleteDailyProductionById" parameterType="string">
+		DELETE FROM Daily_Production2_Plans WHERE daily_plan_id = #{dailyPlanId}
+	</delete>
+
+	<!-- 금일 생산계획 삭제 (lot_number로) -->
+	<delete id="deleteDailyProductionByLotNumber" parameterType="string">
+		DELETE FROM Daily_Production2_Plans WHERE lot_number = #{lotNumber}
+	</delete>
+
+	<!-- 금일 생산계획 상태 업데이트 -->
+	<update id="updateDailyProductionStatus" parameterType="kr.or.mes.dto.DailyProduction2DTO">
+		UPDATE Daily_Production2_Plans SET
+		status = #{status},
+		updated_date = SYSDATE,
+		updated_by = #{updatedBy}
+		WHERE daily_plan_id = #{dailyPlanId}
+	</update>
+
+	<!-- 금일 생산계획 실제 수량 업데이트 -->
+	<update id="updateDailyProductionActualQty" parameterType="kr.or.mes.dto.DailyProduction2DTO">
+		UPDATE Daily_Production2_Plans SET
+		actual_qty = #{actualQty},
+		updated_date = SYSDATE,
+		updated_by = #{updatedBy}
+		WHERE daily_plan_id = #{dailyPlanId}
+	</update>
+
+	<!-- 금일 생산계획 작업자 배정 -->
+	<update id="assignWorkerToDailyProduction" parameterType="kr.or.mes.dto.DailyProduction2DTO">
+		UPDATE Daily_Production2_Plans SET
+		worker_id = #{workerId},
+		updated_date = SYSDATE,
+		updated_by = #{updatedBy}
+		WHERE daily_plan_id = #{dailyPlanId}
+	</update>
+
+	<!-- 상태별 금일 생산계획 조회 -->
+	<select id="selectDailyProductionByStatus" parameterType="string"
+		resultType="kr.or.mes.dto.DailyProduction2DTO">
+		SELECT
+		dp.daily_plan_id as dailyPlanId,
+		dp.lot_number as lotNumber,
+		dp.parent_lot_number as parentLotNumber,
+		dp.product_code as productCode,
+		s.item_name as productName,
+		dp.planned_qty as plannedQty,
+		dp.actual_qty as actualQty,
+		dp.status,
+		dp.planned_start_date as plannedStartDate,
+		dp.planned_end_date as plannedEndDate,
+		dp.actual_start_date as actualStartDate,
+		dp.actual_end_date as actualEndDate,
+		dp.worker_id as workerId,
+		dp.created_date as createdDate,
+		dp.updated_date as updatedDate,
+		dp.created_by as createdBy,
+		dp.updated_by as updatedBy
+		FROM Daily_Production2_Plans dp
+		LEFT JOIN Standard2 s ON dp.product_code = s.item_code
+		WHERE dp.status = #{status}
+		ORDER BY dp.created_date DESC
+	</select>
+
+	<!-- 특정 전체 생산계획의 금일 생산계획 목록 조회 -->
+	<select id="selectDailyProductionByParentLot" parameterType="string"
+		resultType="kr.or.mes.dto.DailyProduction2DTO">
+		SELECT
+		dp.daily_plan_id as dailyPlanId,
+		dp.lot_number as lotNumber,
+		dp.parent_lot_number as parentLotNumber,
+		dp.product_code as productCode,
+		s.item_name as productName,
+		dp.planned_qty as plannedQty,
+		dp.actual_qty as actualQty,
+		dp.status,
+		dp.planned_start_date as plannedStartDate,
+		dp.planned_end_date as plannedEndDate,
+		dp.actual_start_date as actualStartDate,
+		dp.actual_end_date as actualEndDate,
+		dp.worker_id as workerId,
+		dp.created_date as createdDate,
+		dp.updated_date as updatedDate,
+		dp.created_by as createdBy,
+		dp.updated_by as updatedBy
+		FROM Daily_Production2_Plans dp
+		LEFT JOIN Standard2 s ON dp.product_code = s.item_code
+		WHERE dp.parent_lot_number = #{parentLotNumber}
+		ORDER BY dp.lot_number
+	</select>
+
+	<!-- 특정 전체 생산계획의 금일 생산계획 수량 합계 조회 -->
+	<select id="selectTotalDailyQtyByParentLot" parameterType="string" resultType="int">
+		SELECT NVL(SUM(planned_qty), 0)
+		FROM Daily_Production2_Plans
+		WHERE parent_lot_number = #{parentLotNumber}
+	</select>
+
+	<!-- 특정 전체 생산계획의 금일 생산계획 실제 수량 합계 조회 -->
+	<select id="selectTotalActualQtyByParentLot" parameterType="string" resultType="int">
+		SELECT NVL(SUM(actual_qty), 0)
+		FROM Daily_Production2_Plans
+		WHERE parent_lot_number = #{parentLotNumber}
+	</select>
+
+	<!-- 작업자별 금일 생산계획 조회 -->
+	<select id="selectDailyProductionByWorker" parameterType="string"
+		resultType="kr.or.mes.dto.DailyProduction2DTO">
+		SELECT
+		dp.daily_plan_id as dailyPlanId,
+		dp.lot_number as lotNumber,
+		dp.parent_lot_number as parentLotNumber,
+		dp.product_code as productCode,
+		s.item_name as productName,
+		dp.planned_qty as plannedQty,
+		dp.actual_qty as actualQty,
+		dp.status,
+		dp.planned_start_date as plannedStartDate,
+		dp.planned_end_date as plannedEndDate,
+		dp.actual_start_date as actualStartDate,
+		dp.actual_end_date as actualEndDate,
+		dp.worker_id as workerId,
+		dp.created_date as createdDate,
+		dp.updated_date as updatedDate,
+		dp.created_by as createdBy,
+		dp.updated_by as updatedBy,
+		-- Java 1.6 호환을 위한 상태별 필드 설정
+		CASE 
+			WHEN dp.status = 'Production' THEN '계획'
+			WHEN dp.status = 'work' THEN '작업중'
+			WHEN dp.status = 'quality' THEN '품질검사중'
+			WHEN dp.status = 'inventory' THEN '완료'
+			ELSE dp.status
+		END as statusDisplayName,
+		CASE 
+			WHEN dp.status = 'inventory' THEN 1
+			ELSE 0
+		END as completed,
+		CASE 
+			WHEN dp.status IN ('work', 'quality') THEN 1
+			ELSE 0
+		END as inProgress
+		FROM Daily_Production2_Plans dp
+		LEFT JOIN Standard2 s ON dp.product_code = s.item_code
+		WHERE dp.worker_id = #{workerId}
+		ORDER BY dp.created_date DESC
+	</select>
+
+	<!-- 상태별 금일 생산계획 조회 -->
+	<select id="selectDailyProductionByStatus" parameterType="string"
+		resultType="kr.or.mes.dto.DailyProduction2DTO">
+		SELECT
+		dp.daily_plan_id as dailyPlanId,
+		dp.lot_number as lotNumber,
+		dp.parent_lot_number as parentLotNumber,
+		dp.product_code as productCode,
+		s.item_name as productName,
+		dp.planned_qty as plannedQty,
+		dp.actual_qty as actualQty,
+		dp.status,
+		dp.planned_start_date as plannedStartDate,
+		dp.planned_end_date as plannedEndDate,
+		dp.actual_start_date as actualStartDate,
+		dp.actual_end_date as actualEndDate,
+		dp.worker_id as workerId,
+		dp.created_date as createdDate,
+		dp.updated_date as updatedDate,
+		dp.created_by as createdBy,
+		dp.updated_by as updatedBy,
+		-- Java 1.6 호환을 위한 상태별 필드 설정
+		CASE 
+			WHEN dp.status = 'Production' THEN '계획'
+			WHEN dp.status = 'work' THEN '작업중'
+			WHEN dp.status = 'quality' THEN '품질검사중'
+			WHEN dp.status = 'inventory' THEN '완료'
+			ELSE dp.status
+		END as statusDisplayName,
+		CASE 
+			WHEN dp.status = 'inventory' THEN 1
+			ELSE 0
+		END as completed,
+		CASE 
+			WHEN dp.status IN ('work', 'quality') THEN 1
+			ELSE 0
+		END as inProgress
+		FROM Daily_Production2_Plans dp
+		LEFT JOIN Standard2 s ON dp.product_code = s.item_code
+		WHERE dp.status = #{status}
+		ORDER BY dp.created_date DESC
+	</select>
+
+	<!-- 금일 생산계획 작업자 배정 -->
+	<update id="assignWorkerToDailyProduction" parameterType="kr.or.mes.dto.DailyProduction2DTO">
+		UPDATE Daily_Production2_Plans SET
+		worker_id = #{workerId},
+		updated_date = SYSDATE,
+		updated_by = #{updatedBy}
+		WHERE daily_plan_id = #{dailyPlanId}
+	</update>
+
+	<!-- 특정 parent_lot_number에 대한 최대 시퀀스 번호 조회 -->
+	<select id="getMaxSequenceForParentLot" parameterType="string" resultType="int">
+		SELECT NVL(MAX(TO_NUMBER(SUBSTR(lot_number, LENGTH(#{parentLotNumber}) + 2))), 0)
+		FROM Daily_Production2_Plans
+		WHERE parent_lot_number = #{parentLotNumber}
+	</select>
+
+</mapper>

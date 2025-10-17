@@ -49,7 +49,7 @@ public class WorkOrdersController {
     public String workOrderDetail(@RequestParam String workOrderNo, Model model) {
         WorkOrders2DTO workOrder = workOrdersService.selectWorkOrderByNo(workOrderNo);
         model.addAttribute("workOrder", workOrder);
-        return "workorders/workOrdersDetail";
+        return "workorders/workOrderDetail";
     }
     
     /**
@@ -60,7 +60,7 @@ public class WorkOrdersController {
     @PostMapping("/startWork")
     public String startWork(@RequestParam String workOrderNo) {
         workOrdersService.startWork(workOrderNo);
-        return "redirect:/mes/work";
+        return "redirect:/work";
     }
     
     /**
@@ -72,7 +72,7 @@ public class WorkOrdersController {
     @PostMapping("/updateProduction")
     public String updateProduction(@RequestParam String workOrderNo, @RequestParam int actualQty) {
         workOrdersService.updateProductionQuantity(workOrderNo, actualQty);
-        return "redirect:/mes/work";
+        return "redirect:/work";
     }
     
     /**
@@ -83,7 +83,7 @@ public class WorkOrdersController {
     @PostMapping("/completeWork")
     public String completeWork(@RequestParam String workOrderNo) {
         workOrdersService.completeWork(workOrderNo);
-        return "redirect:/mes/work";
+        return "redirect:/work";
     }
     
     /**

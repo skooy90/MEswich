@@ -9,6 +9,10 @@ import kr.or.mes.dto.WorkOrders2DTO;
  */
 public interface WorkOrdersService {
     
+	
+	// 작업지시서 자동 생성
+	String createWorkOrderFromProduction(String lotNumber);
+	
     /**
      * 전체 작업지시서 조회 (JSP에서 필터링용)
      */
@@ -23,11 +27,6 @@ public interface WorkOrdersService {
      * 작업지시번호로 단건 조회
      */
     WorkOrders2DTO selectWorkOrderByNo(String workOrderNo);
-    
-    /**
-     * 작업지시서 등록
-     */
-    String createWorkOrder(WorkOrders2DTO workOrder);
     
     /**
      * 작업지시서 수정
@@ -60,13 +59,6 @@ public interface WorkOrdersService {
      * @return 해당 상태의 작업지시서 목록
      */
     List<WorkOrders2DTO> selectWorkOrdersByStatus(String status);
-    
-    /**
-     * 생산계획에서 작업지시서 생성
-     * @param lotNumber LOT번호
-     * @return 성공 시 "SUCCESS", 실패 시 에러 메시지
-     */
-    String createWorkOrderFromProduction(String lotNumber);
     
     /**
      * 생산량 업데이트
