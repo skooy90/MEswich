@@ -1,0 +1,304 @@
+---------------------------------------------------------
+-- 1. 품목 기준정보 (Standard2)
+---------------------------------------------------------
+CREATE TABLE Standard2 (
+    item_code       VARCHAR2(50) PRIMARY KEY,  
+    item_name       VARCHAR2(200) NOT NULL,
+    item_type       VARCHAR2(20) NOT NULL,
+    unit            VARCHAR2(20),
+    created_date    DATE DEFAULT SYSDATE,
+    updated_date    DATE,
+    created_by      VARCHAR2(50),
+    updated_by      VARCHAR2(50),
+    CONSTRAINT chk_standard2_type CHECK (item_type IN ('FG','RM'))
+);
+
+---------------------------------------------------------
+-- 2. 사용자 관리 (Users2)
+---------------------------------------------------------
+CREATE TABLE Users2 (
+    user_id              VARCHAR2(50) PRIMARY KEY,
+    user_name            VARCHAR2(100) NOT NULL,
+    password             VARCHAR2(256) NOT NULL,
+    department           VARCHAR2(100),
+    role                 VARCHAR2(50),
+    status               VARCHAR2(20) DEFAULT 'ACTIVE',
+    last_login           DATE,
+    password_change_date DATE,
+    created_date         DATE DEFAULT SYSDATE,
+    updated_date         DATE,
+    created_by           VARCHAR2(50),
+    updated_by           VARCHAR2(50),
+    CONSTRAINT chk_users2_status CHECK (status IN ('ACTIVE','INACTIVE','LOCKED'))
+);
+
+---------------------------------------------------------
+-- 3. BOM2 (자재 명세서)
+---------------------------------------------------------
+CREATE TABLE BOM2 (
+    bom_id          NUMBER PRIMARY KEY,
+    product_code    VARCHAR2(50) NOT NULL,
+    material_code   VARCHAR2(50) NOT NULL,
+    quantity        NUMBER(12,2) NOT NULL,
+    created_date    DATE DEFAULT SYSDATE,
+    updated_date    DATE,
+    created_by      VARCHAR2(50),
+    updated_by      VARCHAR2(50),
+    CONSTRAINT fk_bom2_product FOREIGN KEY (product_code) REFERENCES Standard2(item_code) ON DELETE CASCADE,
+    CONSTRAINT fk_bom2_material FOREIGN KEY (material_code) REFERENCES Standard2(item_code) ON DELETE CASCADE,
+    CONSTRAINT uq_bom2 UNIQUE (product_code, material_code)
+);
+
+CREATE SEQUENCE seq_bom2 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+CREATE OR REPLACE TRIGGER trg_bom2
+BEFORE INSERT ON BOM2
+FOR EACH ROW
+BEGIN
+    IF :NEW.bom_id IS NULL THEN
+        :NEW.bom_id := seq_bom2.NEXTVAL;
+    END IF;
+END;
+/
+
+---------------------------------------------------------
+-- 4. 공정 라우팅 (Process_Routing2)
+---------------------------------------------------------
+CREATE TABLE Process_Routing2 (
+    routing_id      NUMBER PRIMARY KEY,
+    product_code    VARCHAR2(50) NOT NULL,
+    operation_seq   NUMBER NOT NULL,
+    operation_code  VARCHAR2(50) NOT NULL,
+    operation_name  VARCHAR2(100),
+    standard_time   NUMBER,
+    created_date    DATE DEFAULT SYSDATE,
+    updated_date    DATE,
+    created_by      VARCHAR2(50),
+    updated_by      VARCHAR2(50),
+    CONSTRAINT fk_routing2_product FOREIGN KEY (product_code) REFERENCES Standard2(item_code) ON DELETE CASCADE
+);
+
+CREATE SEQUENCE seq_routing2 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+CREATE OR REPLACE TRIGGER trg_routing2
+BEFORE INSERT ON Process_Routing2
+FOR EACH ROW
+BEGIN
+    IF :NEW.routing_id IS NULL THEN
+        :NEW.routing_id := seq_routing2.NEXTVAL;
+    END IF;
+END;
+/
+
+---------------------------------------------------------
+-- 5. 생산 관리 (Production2)
+---------------------------------------------------------
+CREATE TABLE Production2 (
+    lot_number          VARCHAR2(50) PRIMARY KEY,
+    product_code        VARCHAR2(50) NOT NULL,
+    planned_qty         NUMBER NOT NULL,
+    actual_qty          NUMBER,
+    status              VARCHAR2(20) DEFAULT 'PLANNED',
+    planned_start_date  DATE,
+    planned_end_date    DATE,
+    actual_start_date   DATE,
+    actual_end_date     DATE,
+    created_date        DATE DEFAULT SYSDATE,
+    updated_date        DATE,
+    created_by          VARCHAR2(50),
+    updated_by          VARCHAR2(50),
+    CONSTRAINT fk_prod2_product FOREIGN KEY (product_code) REFERENCES Standard2(item_code),
+    CONSTRAINT chk_prod2_status CHECK (status IN ('PLANNED','IN_PROGRESS','COMPLETED','CANCELLED'))
+);
+
+CREATE SEQUENCE seq_lot_number2 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+CREATE OR REPLACE TRIGGER trg_lot_number2
+BEFORE INSERT ON Production2
+FOR EACH ROW
+BEGIN
+    IF :NEW.lot_number IS NULL THEN
+        :NEW.lot_number := 'LOT' || TO_CHAR(SYSDATE, 'YYYYMMDD') || '-' || LPAD(seq_lot_number2.NEXTVAL, 4, '0');
+    END IF;
+END;
+/
+
+---------------------------------------------------------
+-- 5-1. 금일 생산관리 (Daily_Production2_Plans)
+---------------------------------------------------------
+CREATE TABLE Daily_Production2_Plans (
+    daily_plan_id VARCHAR2(20) PRIMARY KEY,
+    lot_number VARCHAR2(30) NOT NULL UNIQUE,  -- 전체생산계획LOT번호-01 형태
+    parent_lot_number VARCHAR2(20) NOT NULL,  -- 원본 전체생산계획 LOT번호
+    product_code VARCHAR2(20) NOT NULL,
+    planned_qty NUMBER(10) NOT NULL,
+    actual_qty NUMBER(10) DEFAULT 0,
+    status VARCHAR2(20) DEFAULT 'Production',
+    planned_start_date DATE,
+    planned_end_date DATE,
+    actual_start_date DATE,
+    actual_end_date DATE,
+    worker_id VARCHAR2(20),
+    created_date DATE DEFAULT SYSDATE,
+    updated_date DATE,
+    created_by VARCHAR2(20),
+    updated_by VARCHAR2(20),
+    
+    CONSTRAINT chk_daily_status CHECK (status IN ('Production', 'work', 'quality', 'inventory')),
+    CONSTRAINT fk_daily_product FOREIGN KEY (product_code) REFERENCES Standard2(item_code),
+    CONSTRAINT fk_parent_lot FOREIGN KEY (parent_lot_number) REFERENCES Production2(lot_number)
+);
+
+
+-- 2. daily_plan_id 생성을 위한 시퀀스
+CREATE SEQUENCE SEQ_DAILY_PRODUCTION
+START WITH 1
+INCREMENT BY 1
+NOCACHE;
+
+-- 3. daily_plan_id 자동 생성 트리거
+CREATE OR REPLACE TRIGGER TRG_DAILY_PLAN_ID
+BEFORE INSERT ON Daily_Production2_Plans
+FOR EACH ROW
+BEGIN
+    IF :NEW.daily_plan_id IS NULL THEN
+        :NEW.daily_plan_id := 'DP' || TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') || LPAD(SEQ_DAILY_PRODUCTION.NEXTVAL, 3, '0');
+    END IF;
+END;
+/
+
+-- 4. LOT 번호 자동 생성 트리거 (parent_lot_number-01, parent_lot_number-02, ...)
+CREATE OR REPLACE TRIGGER TRG_DAILY_LOT_NUMBER
+BEFORE INSERT ON Daily_Production2_Plans
+FOR EACH ROW
+DECLARE
+    v_next_seq NUMBER;
+BEGIN
+    -- 같은 parent_lot_number에서 다음 시퀀스 번호 조회
+    SELECT NVL(MAX(TO_NUMBER(SUBSTR(lot_number, LENGTH(:NEW.parent_lot_number) + 2))), 0) + 1
+    INTO v_next_seq
+    FROM Daily_Production2_Plans
+    WHERE parent_lot_number = :NEW.parent_lot_number;
+    
+    -- LOT 번호 생성: parent_lot_number-01, parent_lot_number-02, ...
+    :NEW.lot_number := :NEW.parent_lot_number || '-' || LPAD(v_next_seq, 2, '0');
+END;
+/
+
+
+-- 5. 인덱스 생성
+CREATE INDEX IDX_DAILY_PARENT_LOT ON Daily_Production2_Plans(parent_lot_number);
+CREATE INDEX IDX_DAILY_STATUS ON Daily_Production2_Plans(status);
+CREATE INDEX IDX_DAILY_CREATED_DATE ON Daily_Production2_Plans(created_date);
+---------------------------------------------------------
+-- 6. 작업 지시서 (Work_Orders2)
+---------------------------------------------------------
+CREATE TABLE Work_Orders2 (
+    work_order_no   VARCHAR2(50) PRIMARY KEY,
+    lot_number      VARCHAR2(50) NOT NULL,
+    product_code    VARCHAR2(50) NOT NULL,
+    planned_qty     NUMBER NOT NULL,
+    actual_qty      NUMBER,
+    status          VARCHAR2(20) DEFAULT 'READY',
+    worker_id       VARCHAR2(50),
+    start_date      DATE,
+    end_date        DATE,
+    created_date    DATE DEFAULT SYSDATE,
+    updated_date    DATE,
+    created_by      VARCHAR2(50),
+    updated_by      VARCHAR2(50),
+    CONSTRAINT fk_wo2_lot FOREIGN KEY (lot_number) REFERENCES Production2(lot_number) ON DELETE CASCADE,
+    CONSTRAINT fk_wo2_product FOREIGN KEY (product_code) REFERENCES Standard2(item_code),
+    CONSTRAINT fk_wo2_worker FOREIGN KEY (worker_id) REFERENCES Users2(user_id),
+    CONSTRAINT chk_wo2_status CHECK (status IN ('READY','IN_PROGRESS','DONE','CANCELLED'))
+);
+
+---------------------------------------------------------
+-- 7. 품질 검사 (Quality2)
+---------------------------------------------------------
+CREATE TABLE Quality2 (
+    inspection_no   VARCHAR2(50) PRIMARY KEY,
+    work_order_no   VARCHAR2(50) NOT NULL,
+    lot_number      VARCHAR2(50) NOT NULL,
+    status          VARCHAR2(20) DEFAULT 'PENDING',
+    inspector_id    VARCHAR2(50),
+    inspector_name  VARCHAR2(100),
+    good_qty        NUMBER,
+    defect_qty      NUMBER,
+    defect_reason   VARCHAR2(200),
+    inspection_date DATE,
+    created_date    DATE DEFAULT SYSDATE,
+    updated_date    DATE,
+    created_by      VARCHAR2(50),
+    updated_by      VARCHAR2(50),
+    CONSTRAINT fk_quality2_wo FOREIGN KEY (work_order_no) REFERENCES Work_Orders2(work_order_no) ON DELETE CASCADE,
+    CONSTRAINT fk_quality2_lot FOREIGN KEY (lot_number) REFERENCES Production2(lot_number) ON DELETE CASCADE,
+    CONSTRAINT chk_quality2_status CHECK (status IN ('PENDING','PASS','FAIL','HOLD'))
+);
+
+---------------------------------------------------------
+-- 8. 재고 관리 (Inventory2)
+---------------------------------------------------------
+CREATE TABLE Inventory2 (
+    inventory_id    NUMBER PRIMARY KEY,
+    item_code       VARCHAR2(50) NOT NULL,
+    lot_number      VARCHAR2(50) NOT NULL,
+    current_qty     NUMBER NOT NULL,
+    location        VARCHAR2(100),
+    last_updated    DATE DEFAULT SYSDATE,
+    created_date    DATE DEFAULT SYSDATE,
+    created_by      VARCHAR2(50),
+    updated_by      VARCHAR2(50),
+    CONSTRAINT fk_inventory2_item FOREIGN KEY (item_code) REFERENCES Standard2(item_code),
+    CONSTRAINT uq_inventory2 UNIQUE (item_code, lot_number, location)
+);
+
+CREATE SEQUENCE seq_inventory2 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+CREATE OR REPLACE TRIGGER trg_inventory2
+BEFORE INSERT ON Inventory2
+FOR EACH ROW
+BEGIN
+    IF :NEW.inventory_id IS NULL THEN
+        :NEW.inventory_id := seq_inventory2.NEXTVAL;
+    END IF;
+END;
+/
+
+---------------------------------------------------------
+-- 9. LOT 추적 (Lot_Tracking2)
+---------------------------------------------------------
+CREATE TABLE Lot_Tracking2 (
+    tracking_id     NUMBER PRIMARY KEY,
+    lot_number      VARCHAR2(50) NOT NULL,
+    status          VARCHAR2(20) NOT NULL,
+    start_date      DATE,
+    end_date        DATE,
+    remarks         VARCHAR2(200),
+    created_date    DATE DEFAULT SYSDATE,
+    updated_by      VARCHAR2(50),
+    CONSTRAINT fk_tracking2_lot FOREIGN KEY (lot_number) REFERENCES Production2(lot_number) ON DELETE CASCADE,
+    CONSTRAINT chk_tracking2_status CHECK (status IN ('PLANNED','IN_PROGRESS','COMPLETED','HOLD','CANCELLED'))
+);
+
+CREATE SEQUENCE seq_tracking2 START WITH 1 INCREMENT BY 1 NOCACHE NOCYCLE;
+
+CREATE OR REPLACE TRIGGER trg_tracking2
+BEFORE INSERT ON Lot_Tracking2
+FOR EACH ROW
+BEGIN
+    IF :NEW.tracking_id IS NULL THEN
+        :NEW.tracking_id := seq_tracking2.NEXTVAL;
+    END IF;
+END;
+
+
+---------------- -----------------------------------------
+-- 성능 향상용 인덱스
+---------------------------------------------------------
+CREATE INDEX idx_inventory2_item_code ON Inventory2(item_code);
+CREATE INDEX idx_production2_product_code ON Production2(product_code);
+CREATE INDEX idx_work_orders2_status ON Work_Orders2(status);
+
+
+commit;
