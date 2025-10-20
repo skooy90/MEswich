@@ -6,11 +6,14 @@
     <nav class="side-menu">
         <ul>
             <li><a href="/mes/">📊 대시보드</a></li>
+            <li><a href="/mes/standard2/list">🔧 기준 정보</a></li>
+            <li><a href="/mes/bom2/list">🔧 BOM</a></li>
+            <li><a href="/mes/processRouting2/list">🔧 공정 라우팅</a></li>
             <li><a href="/mes/production/list">🏭 생산 관리</a></li>
             <li><a href="/mes/work">🧾 작업 지시</a></li>
             <li><a href="/mes/quality">🔍 품질 관리</a></li>
             <li><a href="#">📦 재고 관리</a></li>
-            <li><a href="#">🔧 기준 정보</a></li>
+            <li><a href="#">📦 LOT 추적</a></li>
             <li><a href="#">👤 사용자 관리</a></li>
         </ul>
     </nav>
