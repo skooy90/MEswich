@@ -1,12 +1,135 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper
-  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="mes.mappers.Inventory2Mapper">
+<mapper namespace="kr.or.mes.dao.Inventory2.Inventory2DAO">
 
-    <select id="selectAllInventory" resultType="kr.or.mes.dto.Inventory2DTO">
-        SELECT * FROM Inventory2
+    <!-- 공통 SELECT 절 정의 -->
+    <sql id="selectInventoryColumns">
+        i.inventory_id as inventoryId,
+        i.item_code as itemCode,
+        s.item_name as productName,
+        i.lot_number as lotNumber,
+        i.current_qty as currentQty,
+        i.last_updated as lastUpdated,
+        i.created_date as createdDate,
+        i.created_by as createdBy,
+        i.updated_by as updatedBy
+    </sql>
+
+    <!-- 공통 FROM 절 정의 -->
+    <sql id="selectInventoryFrom">
+        FROM Inventory2 i
+        LEFT JOIN Standard2 s ON i.item_code = s.item_code
+    </sql>
+
+    <!-- 전체재고현황 조회 (품목명 포함) -->
+    <select id="selectAllInventory" 
+            parameterType="kr.or.mes.dto.Inventory2DTO"
+            resultType="kr.or.mes.dto.Inventory2DTO">
+        SELECT
+        <include refid="selectInventoryColumns" />
+        <include refid="selectInventoryFrom" />
+        <where>
+            <if test="itemCode != null and itemCode != ''">
+                AND i.item_code = #{itemCode}
+            </if>
+            <if test="lotNumber != null and lotNumber != ''">
+                AND i.lot_number LIKE '%' || #{lotNumber} || '%'
+            </if>
+        </where>
+        ORDER BY i.last_updated DESC
     </select>
+
+    <!-- 재고 상세 조회 -->
+    <select id="selectInventoryById" 
+            parameterType="int" 
+            resultType="kr.or.mes.dto.Inventory2DTO">
+        SELECT
+        <include refid="selectInventoryColumns" />
+        <include refid="selectInventoryFrom" />
+        WHERE i.inventory_id = #{inventoryId}
+    </select>
+
+    <!-- 조건별 재고 검색 -->
+    <select id="selectInventoryByCondition" 
+            parameterType="kr.or.mes.dto.Inventory2DTO"
+            resultType="kr.or.mes.dto.Inventory2DTO">
+        SELECT
+        <include refid="selectInventoryColumns" />
+        <include refid="selectInventoryFrom" />
+        <where>
+            <if test="itemCode != null and itemCode != ''">
+                AND i.item_code LIKE '%' || #{itemCode} || '%'
+            </if>
+            <if test="lotNumber != null and lotNumber != ''">
+                AND i.lot_number LIKE '%' || #{lotNumber} || '%'
+            </if>
+            <if test="productName != null and productName != ''">
+                AND s.item_name LIKE '%' || #{productName} || '%'
+            </if>
+        </where>
+        ORDER BY i.last_updated DESC
+    </select>
+
+    <!-- 재고 등록 -->
+    <insert id="insertInventory" parameterType="kr.or.mes.dto.Inventory2DTO">
+        <selectKey keyProperty="inventoryId" resultType="int" order="BEFORE">
+            SELECT seq_inventory2.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO Inventory2 (
+            inventory_id,
+            item_code,
+            lot_number,
+            current_qty,
+            location,
+            last_updated,
+            created_date,
+            created_by,
+            daily_lot_number
+        ) VALUES (
+            #{inventoryId},
+            #{itemCode},
+            #{lotNumber},
+            #{currentQty},
+            #{location},
+            SYSDATE,
+            SYSDATE,
+            #{createdBy},
+            #{dailyLotNumber}
+        )
+    </insert>
+
+    <!-- 재고 중복 체크 (LOT번호 기준) -->
+    <select id="selectInventoryByLot" 
+            parameterType="string" 
+            resultType="kr.or.mes.dto.Inventory2DTO">
+        SELECT
+        <include refid="selectInventoryColumns" />
+        <include refid="selectInventoryFrom" />
+        WHERE i.lot_number = #{lotNumber}
+    </select>
+
+    <!-- 재고 수량 업데이트 -->
+    <update id="updateInventoryQty" parameterType="kr.or.mes.dto.Inventory2DTO">
+        UPDATE Inventory2 SET
+            current_qty = current_qty + #{currentQty},
+            last_updated = SYSDATE,
+            updated_by = #{updatedBy}
+        WHERE lot_number = #{lotNumber}
+    </update>
+
+    <!-- 재고 수정 -->
+    <update id="updateInventory" parameterType="kr.or.mes.dto.Inventory2DTO">
+        UPDATE Inventory2 SET
+            current_qty = #{currentQty},
+            last_updated = SYSDATE,
+            updated_by = #{updatedBy}
+        WHERE inventory_id = #{inventoryId}
+    </update>
+
+    <!-- 재고 삭제 -->
+    <delete id="deleteInventory" parameterType="int">
+        DELETE FROM Inventory2 WHERE inventory_id = #{inventoryId}
+    </delete>
 
 </mapper>

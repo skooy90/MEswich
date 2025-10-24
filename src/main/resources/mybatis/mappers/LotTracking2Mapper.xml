@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.mes.dao.LotTracking2DAO">
+
+    <!-- 1. LOT 추적 이력 등록 -->
+    <insert id="insertTracking" parameterType="kr.or.mes.dto.LotTracking2DTO">
+        INSERT INTO Lot_Tracking2 (
+            tracking_id, lot_number, status, start_date, end_date,
+            remarks, created_date, updated_by
+        ) VALUES (
+            seq_tracking2.NEXTVAL,
+            #{lotNumber},
+            #{status},
+            #{startDate},
+            #{endDate},
+            #{remarks},
+            SYSDATE,
+            #{updatedBy}
+        )
+    </insert>
+
+    <!-- 2. 특정 LOT 전체 이력 조회 -->
+    <select id="selectTrackingByLot" parameterType="String" resultType="kr.or.mes.dto.LotTracking2DTO">
+        SELECT
+            tracking_id AS trackingId,
+            lot_number AS lotNumber,
+            status,
+            start_date AS startDate,
+            end_date AS endDate,
+            remarks,
+            created_date AS createdDate,
+            updated_by AS updatedBy
+        FROM Lot_Tracking2
+        WHERE lot_number = #{lotNumber}
+        ORDER BY tracking_id
+    </select>
+
+    <!-- 3. LOT의 최신 상태 조회 -->
+    <select id="selectLatestStatus" parameterType="String" resultType="String">
+        SELECT status
+        FROM Lot_Tracking2
+        WHERE lot_number = #{lotNumber}
+        ORDER BY tracking_id DESC
+        FETCH FIRST 1 ROWS ONLY
+    </select>
+
+</mapper>

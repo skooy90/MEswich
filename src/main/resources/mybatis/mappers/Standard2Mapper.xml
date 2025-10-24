@@ -35,6 +35,21 @@
 		FROM Standard2
 		WHERE item_code = #{itemCode}
 	</select>
+		<!-- type -->
+	<select id="selectByType" parameterType="string" resultType="kr.or.mes.dto.Standard2DTO">
+    SELECT
+        item_code AS itemCode,
+        item_name AS itemName,
+        item_type AS itemType,
+        unit,
+        created_date AS createdDate,
+        updated_date AS updatedDate,
+        created_by AS createdBy,
+        updated_by AS updatedBy
+    FROM Standard2
+    WHERE item_type = #{itemType}
+    ORDER BY created_date DESC
+	</select>
 
 	<!-- 등록 -->
 	<insert id="insert" parameterType="kr.or.mes.dto.Standard2DTO">

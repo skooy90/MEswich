@@ -18,7 +18,8 @@
 		w.created_date as createdDate,
 		w.updated_date as updatedDate,
 		w.created_by as createdBy,
-		w.updated_by as updatedBy
+		w.updated_by as updatedBy,
+		w.daily_lot_number as dailyLotNumber
 	</sql>
 
 	<!-- 공통 FROM 절 정의 -->
@@ -27,7 +28,7 @@
 		LEFT JOIN Standard2 s ON w.product_code = s.item_code
 	</sql>
 
-	<!-- 생산계획에서 작업지시서 자동 생성 -->
+	<!-- 금일 생산계획에서 작업지시서 자동 생성 -->
 	<insert id="insertWorkOrderFromProduction"
 		parameterType="kr.or.mes.dto.WorkOrders2DTO">
 		<selectKey keyProperty="workOrderNo" resultType="String"
@@ -40,17 +41,19 @@
 		product_code,
 		planned_qty,
 		status,
-		created_date
+		created_date,
+		daily_lot_number
 		)
 		SELECT
 		#{workOrderNo},
-		p.lot_number,
-		p.product_code,
-		p.planned_qty,
+		d.parent_lot_number,
+		d.product_code,
+		d.planned_qty,
 		'READY',
-		SYSDATE
-		FROM Production2 p
-		WHERE p.lot_number = #{lotNumber}
+		SYSDATE,
+		d.lot_number
+		FROM Daily_Production2_Plans d
+		WHERE d.lot_number = #{dailyLotNumber}
 	</insert>
 
 

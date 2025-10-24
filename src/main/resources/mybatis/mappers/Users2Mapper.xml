@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.mes.dao.Users2DAO">
+
+    <!-- ✅ 로그인용 -->
+		<select id="findById" parameterType="string" resultType="kr.or.mes.dto.Users2DTO">
+		    SELECT 
+		        USER_ID AS userId,
+		        USER_NAME AS userName,
+		        PASSWORD AS password,
+		        ROLE AS role,
+		        STATUS AS status,
+		        LAST_LOGIN AS lastLogin,
+		        PASSWORD_CHANGE_DATE AS passwordChangeDate,
+		        CREATED_DATE AS createdDate,
+		        UPDATED_DATE AS updatedDate,
+		        CREATED_BY AS createdBy,
+		        UPDATED_BY AS updatedBy
+		    FROM USERS2
+		    WHERE USER_ID = #{userId}
+		</select>
+    
+	   <!-- ✅ 마지막 사번 조회 -->
+<select id="getLastUserId" resultType="string">
+    SELECT MAX(USER_ID)
+    FROM USERS2
+    WHERE REGEXP_LIKE(USER_ID, '^U[0-9]+$')
+</select>
+
+    <!-- ✅ 사용자 전체 조회 -->
+<select id="selectAll" resultType="kr.or.mes.dto.Users2DTO">
+    SELECT
+        USER_ID AS userId,
+        USER_NAME AS userName,
+        ROLE AS role,
+        STATUS AS status,
+        CREATED_DATE AS createdDate,
+        CREATED_BY AS createdBy,
+        UPDATED_DATE AS updatedDate,     <!-- ✅ 추가 -->
+        UPDATED_BY AS updatedBy          <!-- ✅ 추가 -->
+    FROM USERS2
+    ORDER BY CREATED_DATE DESC
+</select>
+
+    <!-- ✅ 단일 사용자 조회 -->
+<select id="selectById" parameterType="string" resultType="kr.or.mes.dto.Users2DTO">
+    SELECT 
+        USER_ID AS userId,
+        USER_NAME AS userName,
+        PASSWORD AS password,
+        ROLE AS role,
+        STATUS AS status,
+        LAST_LOGIN AS lastLogin,
+        PASSWORD_CHANGE_DATE AS passwordChangeDate,
+        CREATED_DATE AS createdDate,
+        UPDATED_DATE AS updatedDate,
+        CREATED_BY AS createdBy,
+        UPDATED_BY AS updatedBy
+    FROM USERS2
+    WHERE USER_ID = #{userId}
+</select>
+
+    <!-- ✅ 신규 등록 -->
+    <insert id="insert" parameterType="kr.or.mes.dto.Users2DTO">
+        INSERT INTO USERS2 (
+            USER_ID, USER_NAME, PASSWORD, ROLE, STATUS,
+            CREATED_DATE, CREATED_BY
+        ) VALUES (
+            #{userId},
+            #{userName},
+            NVL(#{password}, #{userId}),
+            #{role},
+            'ACTIVE',
+            SYSDATE,
+            #{createdBy}
+        )
+    </insert>
+
+    <!-- ✅ 수정 -->
+    <update id="update" parameterType="kr.or.mes.dto.Users2DTO">
+        UPDATE USERS2
+        SET USER_NAME = #{userName},
+            PASSWORD = #{password},
+            ROLE = #{role},
+            STATUS = #{status},
+            UPDATED_DATE = SYSDATE,
+            UPDATED_BY = #{updatedBy}
+        WHERE USER_ID = #{userId}
+    </update>
+
+    <!-- ✅ 삭제 -->
+    <delete id="delete" parameterType="string">
+        DELETE FROM USERS2 WHERE USER_ID = #{userId}
+    </delete>
+    
+        <!-- ✅ 이름 + 이메일로 사용자 조회 (아이디 찾기용) -->
+    <select id="findByNameAndEmail" parameterType="kr.or.mes.dto.Users2DTO"
+            resultType="kr.or.mes.dto.Users2DTO">
+        SELECT 
+            USER_ID AS userId,
+            USER_NAME AS userName,
+            PASSWORD AS password,
+            ROLE AS role,
+            STATUS AS status,
+            EMAIL AS email,
+            LAST_LOGIN AS lastLogin,
+            PASSWORD_CHANGE_DATE AS passwordChangeDate,
+            CREATED_DATE AS createdDate,
+            UPDATED_DATE AS updatedDate,
+            CREATED_BY AS createdBy,
+            UPDATED_BY AS updatedBy
+        FROM USERS2
+        WHERE USER_NAME = #{userName}
+          AND EMAIL = #{email}
+    </select>
+
+    <!-- ✅ 이메일로 사용자 조회 (비밀번호 찾기용) -->
+    <select id="findByEmail" parameterType="string" resultType="kr.or.mes.dto.Users2DTO">
+        SELECT 
+            USER_ID AS userId,
+            USER_NAME AS userName,
+            PASSWORD AS password,
+            ROLE AS role,
+            STATUS AS status,
+            EMAIL AS email,
+            LAST_LOGIN AS lastLogin,
+            PASSWORD_CHANGE_DATE AS passwordChangeDate,
+            CREATED_DATE AS createdDate,
+            UPDATED_DATE AS updatedDate,
+            CREATED_BY AS createdBy,
+            UPDATED_BY AS updatedBy
+        FROM USERS2
+        WHERE EMAIL = #{email}
+    </select>
+
+</mapper>

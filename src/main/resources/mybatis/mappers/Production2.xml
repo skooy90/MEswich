@@ -110,6 +110,7 @@
 		INSERT INTO Production2 (
 			product_code,
 			planned_qty,
+			ACTUAL_QTY,
 			status,
 			planned_start_date,
 			planned_end_date,
@@ -117,6 +118,7 @@
 		) VALUES (
 			#{productCode},
 			#{plannedQty},
+			0,
 			'PLANNED',
 			#{plannedStartDate},
 			#{plannedEndDate},
@@ -268,26 +270,28 @@
 		ORDER BY p.created_date DESC
 	</select>
 
-
-
-	<!-- 전체 생산계획에서 금일 생산계획 생성용 데이터 조회 -->
-	<select id="selectProductionForDailySchedule" parameterType="string"
-		resultType="kr.or.mes.dto.Production2DTO">
-		SELECT
-		p.lot_number as lotNumber,
-		p.product_code as productCode,
-		s.item_name as productName,
-		p.planned_qty as plannedQty,
-		p.status,
-		p.planned_start_date as plannedStartDate,
-		p.planned_end_date as plannedEndDate
-		FROM Production2 p
-		LEFT JOIN Standard2 s ON p.product_code = s.item_code
-		WHERE p.lot_number = #{lotNumber}
-		AND p.status IN ('PLANNED', 'IN_PROGRESS', 'COMPLETED')
-		AND p.planned_start_date IS NOT NULL 
-		AND p.planned_end_date IS NOT NULL
-	</select>
-
+<!-- 금일 생산계획 생성을 위한 전체 생산계획 조회 -->
+<select id="selectProductionForDailySchedule" parameterType="string"
+    resultType="kr.or.mes.dto.Production2DTO">
+    SELECT
+    p.lot_number as lotNumber,
+    p.product_code as productCode,
+    s.item_name as productName,
+    p.planned_qty as plannedQty,
+    p.actual_qty as actualQty,
+    p.status,
+    p.planned_start_date as plannedStartDate,
+    p.planned_end_date as plannedEndDate,
+    p.actual_start_date as actualStartDate,
+    p.actual_end_date as actualEndDate,
+    p.created_date as createdDate,
+    p.updated_date as updatedDate,
+    p.created_by as createdBy,
+    p.updated_by as updatedBy
+    FROM Production2 p
+    LEFT JOIN Standard2 s ON p.product_code = s.item_code
+    WHERE p.lot_number = #{lotNumber}
+    AND p.status IN ('PLANNED', 'IN_PROGRESS')
+</select>
 
 </mapper>

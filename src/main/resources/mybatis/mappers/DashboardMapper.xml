@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.mes.dao.Dashboard.DashboardDAO">
+
+    <!-- 전체 생산량 통계 조회 (계획수량 vs 실제수량) -->
+    <select id="getTotalProductionStats" resultType="kr.or.mes.dto.Dashboard.ProductionStatsDTO">
+        SELECT 
+            SUM(planned_qty) as totalPlannedQty,      -- 총 계획 수량
+            SUM(NVL(actual_qty, 0)) as totalActualQty, -- 총 실제 수량
+            COUNT(*) as totalLots,                     -- 총 LOT 수
+            SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) as completedLots, -- 완료된 LOT 수
+            SUM(CASE WHEN status = 'IN_PROGRESS' THEN 1 ELSE 0 END) as inProgressLots, -- 진행중인 LOT 수
+            SUM(CASE WHEN status = 'PLANNED' THEN 1 ELSE 0 END) as plannedLots, -- 계획된 LOT 수
+            ROUND(SUM(NVL(actual_qty, 0)) * 100.0 / NULLIF(SUM(planned_qty), 0), 2) as completionRate -- 완료율
+        FROM Production2
+        WHERE TRUNC(created_date) >= TRUNC(SYSDATE) - 30  -- 최근 30일 데이터
+    </select>
+
+    <!-- 전체 생산 항목 목록 조회 -->
+    <select id="getAllProductions" resultType="kr.or.mes.dto.Production2DTO">
+        SELECT 
+            P.lot_number as lotNumber,
+            P.product_code as productCode,
+            S.item_name as productName,
+            P.planned_qty as plannedQty,
+            P.actual_qty as actualQty,
+            P.status,
+            P.planned_start_date as plannedStartDate,
+            P.planned_end_date as plannedEndDate,
+            P.actual_start_date as actualStartDate,
+            P.actual_end_date as actualEndDate,
+            P.created_date as createdDate,
+            P.updated_date as updatedDate,
+            P.created_by as createdBy,
+            P.updated_by as updatedBy
+        FROM Production2 P
+        LEFT JOIN Standard2 S ON P.product_code = S.item_code
+        ORDER BY P.created_date DESC
+    </select>
+    
+    <!-- 선택된 생산 항목 상세 조회 -->
+    <select id="getProductionByLot" resultType="kr.or.mes.dto.Production2DTO">
+        SELECT 
+            P.lot_number as lotNumber,
+            P.product_code as productCode,
+            S.item_name as productName,
+            P.planned_qty as plannedQty,
+            P.actual_qty as actualQty,
+            P.status,
+            P.planned_start_date as plannedStartDate,
+            P.planned_end_date as plannedEndDate,
+            P.actual_start_date as actualStartDate,
+            P.actual_end_date as actualEndDate,
+            P.created_date as createdDate,
+            P.updated_date as updatedDate,
+            P.created_by as createdBy,
+            P.updated_by as updatedBy
+        FROM Production2 P
+        LEFT JOIN Standard2 S ON P.product_code = S.item_code
+        WHERE P.lot_number = #{lotNumber}
+    </select>
+    
+    <!-- 총 불량 갯수 조회 -->
+    <select id="getTotalDefects" resultType="int">
+        <![CDATA[
+    SELECT NVL(SUM(defect_qty), 0) as totalDefects
+    FROM Quality2 
+    WHERE status = 'FAIL' 
+      AND inspection_date IS NOT NULL
+      AND inspection_date >= TRUNC(SYSDATE) - 7
+    ]]>
+    </select>
+    
+    <!-- 일별 불량 갯수 조회 -->
+    <select id="getDailyDefects" resultType="kr.or.mes.dto.Dashboard.DefectDailyDTO">
+        <![CDATA[
+        SELECT 
+            TO_CHAR(inspection_date, 'MM.dd') as dateStr,
+            SUM(defect_qty) as defectCount
+        FROM Quality2 
+        WHERE status = 'FAIL' 
+          AND inspection_date IS NOT NULL
+          AND inspection_date >= TRUNC(SYSDATE) - 7
+        GROUP BY TO_CHAR(inspection_date, 'MM.dd')
+        ORDER BY TO_CHAR(inspection_date, 'MM.dd')
+        ]]>
+    </select>
+    
+    <!-- 총 불량 횟수 조회 (3가지 원인만) -->
+    <select id="getTotalDefectsByCause" resultType="int">
+        <![CDATA[
+        SELECT NVL(COUNT(*), 0) as totalDefects
+        FROM Quality2 
+        WHERE status = 'FAIL' 
+          AND defect_reason IN ('설비결함', '포장불량', '모형문제')
+          AND inspection_date IS NOT NULL
+          AND inspection_date >= TRUNC(SYSDATE) - 7
+        ]]>
+    </select>
+    
+    <!-- 불량 원인별 횟수 조회 -->
+    <select id="getDefectCauses" resultType="kr.or.mes.dto.Dashboard.DefectCauseDTO">
+        <![CDATA[
+        SELECT 
+            defect_reason as causeName,
+            COUNT(*) as defectCount
+        FROM Quality2 
+        WHERE status = 'FAIL' 
+          AND defect_reason IN ('설비결함', '포장불량', '모형문제')
+          AND inspection_date IS NOT NULL
+          AND inspection_date >= TRUNC(SYSDATE) - 7
+        GROUP BY defect_reason
+        ORDER BY COUNT(*) DESC
+        ]]>
+    </select>
+    
+    <!-- ===== 4번 위젯: 작업현황 관련 쿼리 ===== -->
+    
+    <!-- 총 작업 수 조회 -->
+    <select id="getTotalWorks" resultType="int">
+        <![CDATA[
+        SELECT COUNT(*) as totalWorks
+        FROM Work_Orders2 
+        WHERE created_date >= TRUNC(SYSDATE) - 7
+        ]]>
+    </select>
+    
+    <!-- 진행 중인 작업 수 조회 -->
+    <select id="getInProgressWorks" resultType="int">
+        <![CDATA[
+        SELECT COUNT(*) as inProgressWorks
+        FROM Work_Orders2 
+        WHERE status = 'IN_PROGRESS'
+          AND created_date >= TRUNC(SYSDATE) - 7
+        ]]>
+    </select>
+    
+    <!-- 완료된 작업 수 조회 -->
+    <select id="getCompletedWorks" resultType="int">
+        <![CDATA[
+        SELECT COUNT(*) as completedWorks
+        FROM Work_Orders2 
+        WHERE status = 'DONE'
+          AND created_date >= TRUNC(SYSDATE) - 7
+        ]]>
+    </select>
+    
+    <!-- 대기 중인 작업 수 조회 -->
+    <select id="getReadyWorks" resultType="int">
+        <![CDATA[
+        SELECT COUNT(*) as readyWorks
+        FROM Work_Orders2 
+        WHERE status = 'READY'
+          AND created_date >= TRUNC(SYSDATE) - 7
+        ]]>
+    </select>
+    
+    <!-- 작업 상태별 통계 조회 -->
+    <select id="getWorkStatusStats" resultType="kr.or.mes.dto.Dashboard.WorkStatusDTO">
+        <![CDATA[
+        SELECT 
+            status,
+            COUNT(*) as workCount
+        FROM Work_Orders2 
+        WHERE created_date >= TRUNC(SYSDATE) - 7
+        GROUP BY status
+        ORDER BY 
+            CASE status 
+                WHEN 'READY' THEN 1
+                WHEN 'IN_PROGRESS' THEN 2
+                WHEN 'DONE' THEN 3
+                WHEN 'CANCELLED' THEN 4
+            END
+        ]]>
+    </select>
+    
+    <!-- 완제품별 현황 조회 -->
+    <select id="getProductStatusStats" resultType="kr.or.mes.dto.Dashboard.ProductStatusDTO">
+        <![CDATA[
+        SELECT 
+            s.item_name as productName,
+            wo.planned_qty as plannedQty,
+            NVL(wo.actual_qty, 0) as actualQty,
+            wo.status as workStatus,
+            ROUND(
+                NVL(wo.actual_qty, 0) * 100.0 / 
+                NULLIF(wo.planned_qty, 0), 
+                1
+            ) as completionRate
+        FROM Work_Orders2 wo
+        INNER JOIN Standard2 s ON wo.product_code = s.item_code
+        WHERE wo.created_date >= TRUNC(SYSDATE) - 7
+          AND s.item_type = 'FG'
+        ORDER BY completionRate DESC
+        ]]>
+    </select>
+</mapper>

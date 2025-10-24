@@ -236,42 +236,8 @@
 		WHERE daily_plan_id = #{dailyPlanId}
 	</update>
 
-	<!-- 금일 생산계획 작업자 배정 -->
-	<update id="assignWorkerToDailyProduction" parameterType="kr.or.mes.dto.DailyProduction2DTO">
-		UPDATE Daily_Production2_Plans SET
-		worker_id = #{workerId},
-		updated_date = SYSDATE,
-		updated_by = #{updatedBy}
-		WHERE daily_plan_id = #{dailyPlanId}
-	</update>
 
-	<!-- 상태별 금일 생산계획 조회 -->
-	<select id="selectDailyProductionByStatus" parameterType="string"
-		resultType="kr.or.mes.dto.DailyProduction2DTO">
-		SELECT
-		dp.daily_plan_id as dailyPlanId,
-		dp.lot_number as lotNumber,
-		dp.parent_lot_number as parentLotNumber,
-		dp.product_code as productCode,
-		s.item_name as productName,
-		dp.planned_qty as plannedQty,
-		dp.actual_qty as actualQty,
-		dp.status,
-		dp.planned_start_date as plannedStartDate,
-		dp.planned_end_date as plannedEndDate,
-		dp.actual_start_date as actualStartDate,
-		dp.actual_end_date as actualEndDate,
-		dp.worker_id as workerId,
-		dp.created_date as createdDate,
-		dp.updated_date as updatedDate,
-		dp.created_by as createdBy,
-		dp.updated_by as updatedBy
-		FROM Daily_Production2_Plans dp
-		LEFT JOIN Standard2 s ON dp.product_code = s.item_code
-		WHERE dp.status = #{status}
-		ORDER BY dp.created_date DESC
-	</select>
-
+	
 	<!-- 특정 전체 생산계획의 금일 생산계획 목록 조회 -->
 	<select id="selectDailyProductionByParentLot" parameterType="string"
 		resultType="kr.or.mes.dto.DailyProduction2DTO">
