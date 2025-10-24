@@ -22,4 +22,5 @@ public class WorkOrders2DTO {
     private Date updatedDate;       // 수정일
     private String createdBy;       // 생성자
     private String updatedBy;       // 수정자
+    private String dailyLotNumber;    // daily_LOT 번호
 }

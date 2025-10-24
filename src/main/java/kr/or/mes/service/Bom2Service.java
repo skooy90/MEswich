@@ -35,8 +35,8 @@ public class Bom2Service {
         return dao.update(dto);
     }
 
-    public int deleteBom(String bomId) {
-        return dao.delete(bomId);
+    public int deleteBom(String productCode) {
+        return dao.delete(productCode);
     }
 
     public int updateBomMaterial(Bom2DTO dto) {
@@ -49,5 +49,8 @@ public class Bom2Service {
 
     public List<Bom2DTO> selectMaterialListByProductCode(String productCode) {
         return dao.selectMaterialListByProductCode(productCode);
+    }
+    public List<String> getRegisteredProductCodes() {
+        return dao.getRegisteredProductCodes();
     }
 }

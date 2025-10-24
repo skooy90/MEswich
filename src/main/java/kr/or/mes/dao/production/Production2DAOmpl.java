@@ -15,22 +15,7 @@ public class Production2DAOmpl implements Production2DAO {
 	@Autowired
 	SqlSession sqlSession;
 	
-	@Override
-	public List<Production2DTO> selectAll() {
-		List<Production2DTO> resultList = null;
-		
-		resultList = sqlSession.selectList("mes.mappers.Production2.selectAllPro");
-		System.out.println(resultList);
-		return resultList;
-	}
-	@Override
-	public List<Production2DTO> todoselectAll() {
-		List<Production2DTO> resultList = null;
-
-		resultList = sqlSession.selectList("mes.mappers.Production2.selectAllProduction");
-		System.out.println(resultList);
-		return resultList;
-	}
+	// 사용되지 않는 메서드들 제거됨 - 실제로는 selectAllProductionPlans() 사용
 
 	@Override
 	public List<Production2DTO> selectByCondition(Production2DTO dto) {
@@ -42,10 +27,7 @@ public class Production2DAOmpl implements Production2DAO {
 		return sqlSession.selectOne("mes.mappers.Production2.selectProductionByLotNumber", lotNumber);
 	}
 
-	@Override
-	public int insert(Production2DTO production) {
-		return sqlSession.insert("mes.mappers.Production2.insertProduction", production);
-	}
+	// insert() 메서드 제거됨 - 실제로는 insertAllProduction() 사용
 
 	@Override
 	public int update(Production2DTO production) {
@@ -54,11 +36,6 @@ public class Production2DAOmpl implements Production2DAO {
 
 	@Override
 	public int delete(String lotNumber) {
-		return sqlSession.delete("mes.mappers.Production2.deleteProduction", lotNumber);
-	}
-
-	@Override
-	public int deleteByLotNumber(String lotNumber) {
 		return sqlSession.delete("mes.mappers.Production2.deleteProduction", lotNumber);
 	}
 
@@ -96,20 +73,7 @@ public class Production2DAOmpl implements Production2DAO {
 	
 	// ==================== 금일 생산계획 관련 메서드 ====================
 	
-	@Override
-	public List<Production2DTO> selectDailyProductionPlans() {
-		return sqlSession.selectList("mes.mappers.Production2.selectDailyProductionPlans");
-	}
-	
-	@Override
-	public List<Production2DTO> selectDailyProductionByCondition(Production2DTO dto) {
-		return sqlSession.selectList("mes.mappers.Production2.selectDailyProductionByCondition", dto);
-	}
-	
-	@Override
-	public int insertDailyProduction(Production2DTO production) {
-		return sqlSession.insert("mes.mappers.Production2.insertDailyProduction", production);
-	}
+	// 금일 생산계획 관련 메서드들은 DailyProduction2DAO에서 처리됨
 	
 	@Override
 	public Production2DTO selectProductionForDailySchedule(String lotNumber) {

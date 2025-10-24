@@ -54,7 +54,7 @@ public class QualityController {
     @PostMapping("/startInspection")
     public String startInspection(Quality2DTO dto) {
         qualityService.startInspection(dto.getInspectionNo(), dto.getInspectorName(), dto.getInspectorName());
-        return "redirect:/mes/quality";
+        return "redirect:/quality";
     }
 
     /**
@@ -90,7 +90,7 @@ public class QualityController {
     @PostMapping("/completeInspection")
     public String completeInspection(Quality2DTO dto) {
         qualityService.completeInspection(dto.getInspectionNo(), dto.getGoodQty(), dto.getDefectQty(), dto.getDefectReason());
-        return "redirect:/mes/quality";
+        return "redirect:/quality";
     }
 
     /**
@@ -116,13 +116,24 @@ public class QualityController {
     }
 
     /**
-     * 재고관리로 전달
+     * 양품 재고 등록
+     * @param inspectionNo 검사번호
+     * @return 재고관리 페이지로 리다이렉트
+     */
+    @PostMapping("/registerGoodInventory")
+    public String registerGoodInventory(@RequestParam String inspectionNo) {
+        // 재고관리 시스템으로 리다이렉트 (재고 등록 처리)
+        return "redirect:/inventory/register?inspectionNo=" + inspectionNo;
+    }
+
+    /**
+     * 불량 처리
      * @param inspectionNo 검사번호
      * @return 품질관리 페이지로 리다이렉트
      */
-    @GetMapping("/transferToInventory")
-    public String transferToInventory(Quality2DTO dto) {
-        // 재고관리로 전달 로직
-        return "redirect:/mes/quality";
+    @PostMapping("/processDefect")
+    public String processDefect(@RequestParam String inspectionNo) {
+        // 불량 처리 로직 (추후 구현)
+        return "redirect:/quality";
     }
 }

@@ -42,8 +42,12 @@ public class Bom2Controller {
     public String insertForm(Model model) {
         List<Standard2DTO> productList = standard2Service.getProductsByType("FG");
         List<Standard2DTO> materialList = standard2Service.getProductsByType("RM");
+        List<String> registeredProducts = service.getRegisteredProductCodes(); // 새로 추가할 메서드
+        
         model.addAttribute("productList", productList);
         model.addAttribute("materialList", materialList);
+        model.addAttribute("registeredProducts", registeredProducts);
+
         return "bom2/Bom2_insert";
     }
 
@@ -103,9 +107,9 @@ public class Bom2Controller {
     }
 
     // 삭제
-    @GetMapping("/delete/{bomId}")
-    public String delete(@PathVariable("bomId") String bomId) {
-        service.deleteBom(bomId);
+    @GetMapping("/deleteAll/{productCode}")
+    public String deleteAll(@PathVariable("productCode") String productCode) {
+        service.deleteBom(productCode);
         return "redirect:/bom2/list";
     }
 

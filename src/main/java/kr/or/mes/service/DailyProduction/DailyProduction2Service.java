@@ -158,7 +158,7 @@ public interface DailyProduction2Service {
      * @param workerId 작업자 ID
      * @return 해당 작업자의 금일 생산계획 목록
      */
-    public List<DailyProduction2DTO> selectDailyProductionByWorker(String workerId);
+//    public List<DailyProduction2DTO> selectDailyProductionByWorker(String workerId);
     
     /**
      * 전체 생산계획에서 금일 생산계획 생성용 데이터 조회
@@ -194,4 +194,6 @@ public interface DailyProduction2Service {
      * @return 최대 시퀀스 번호
      */
     public int getMaxSequenceForParentLot(String parentLotNumber);
+    
+    
 }

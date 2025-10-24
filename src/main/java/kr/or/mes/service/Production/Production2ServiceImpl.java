@@ -22,19 +22,7 @@ public class Production2ServiceImpl implements Production2Service {
 	@Autowired
     private WorkOrdersService workOrdersService;
 	
-	// 전체 생산 계획 조회 
-	public List<Production2DTO> selectAll() {
-		return productionDAO.todoselectAll();
-	}
-	
-	/**
-	 * 금일 생산 LOT 조회
-	 * @return 생산 LOT 목록
-	 */
-	@Override
-	public List<Production2DTO> todoselectAll() {
-		return productionDAO.todoselectAll();
-	}
+	// 사용되지 않는 메서드들 제거됨 - 실제로는 selectAllProductionPlans() 사용
 	
 	/**
 	 * 조건에 따른 생산 LOT 검색
@@ -56,15 +44,7 @@ public class Production2ServiceImpl implements Production2Service {
 		return productionDAO.selectByLotNumber(lotNumber);
 	}
 	
-	/**
-	 * 새로운 생산 LOT 등록
-	 * @param production 등록할 생산 LOT 정보
-	 * @return 등록 결과 (1: 성공, 0: 실패)
-	 */
-	@Override
-	public int insert(Production2DTO production) {
-		return productionDAO.insert(production);
-	}
+	// insert() 메서드 제거됨 - 실제로는 createAllProduction() 사용
 	
 	/**
 	 * 생산 LOT 등록 처리 (비즈니스 로직 포함)
@@ -98,16 +78,9 @@ public class Production2ServiceImpl implements Production2Service {
 		
 		
 		// 등록 실행
-		int result = productionDAO.insert(production);
+		int result = productionDAO.insertAllProduction(production);
 		if (result > 0) {
-	        // INSERT 후 최신 LOT번호 조회
-	        List<Production2DTO> latestList = productionDAO.todoselectAll();
-	        if (!latestList.isEmpty()) {
-	            String latestLotNumber = latestList.get(0).getLotNumber();
-	            // 작업지시서 자동 생성
-	            workOrdersService.createWorkOrderFromProduction(latestLotNumber);
-	        }
-	        return "SUCCESS";
+			return "SUCCESS";
 		} else {
 			return "생산 LOT 등록에 실패했습니다.";
 		}
@@ -302,62 +275,7 @@ public class Production2ServiceImpl implements Production2Service {
 	
 	// ==================== 금일 생산계획 관련 메서드 ====================
 	
-	/**
-	 * 금일 생산계획 조회
-	 * @return 금일 생산계획 목록
-	 */
-	@Override
-	public List<Production2DTO> selectDailyProductionPlans() {
-		return productionDAO.selectDailyProductionPlans();
-	}
-	
-	/**
-	 * 금일 생산계획 조건별 검색
-	 * @param dto 검색 조건이 담긴 DTO
-	 * @return 검색된 금일 생산계획 목록
-	 */
-	@Override
-	public List<Production2DTO> selectDailyProductionByCondition(Production2DTO dto) {
-		return productionDAO.selectDailyProductionByCondition(dto);
-	}
-	
-	/**
-	 * 금일 생산계획 등록
-	 * @param production 등록할 금일 생산계획 정보
-	 * @return 등록 결과 메시지
-	 */
-	@Override
-	public String createDailyProduction(Production2DTO production) {
-		// 비즈니스 로직: 상태 기본값 설정
-		if (production.getStatus() == null || production.getStatus().trim().isEmpty()) {
-			production.setStatus("PLANNED");
-		}
-		
-		// 비즈니스 로직: 필수 필드 유효성 검사
-		if (production.getProductCode() == null || production.getProductCode().trim().isEmpty()) {
-			return "제품코드를 선택해주세요.";
-		}
-		
-		if (production.getPlannedQty() <= 0) {
-			return "계획수량은 1 이상이어야 합니다.";
-		}
-		
-		if (production.getPlannedStartDate() == null) {
-			return "계획시작일을 입력해주세요.";
-		}
-		
-		if (production.getPlannedEndDate() == null) {
-			return "계획종료일을 입력해주세요.";
-		}
-		
-		// 등록 실행
-		int result = productionDAO.insertDailyProduction(production);
-		if (result > 0) {
-			return "SUCCESS";
-		} else {
-			return "금일 생산계획 등록에 실패했습니다.";
-		}
-	}
+	// 금일 생산계획 관련 메서드들은 DailyProduction2Service에서 처리됨
 	
 	/**
 	 * 전체 생산계획에서 금일 생산계획 생성용 데이터 조회

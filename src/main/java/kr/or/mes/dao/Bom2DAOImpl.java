@@ -35,8 +35,8 @@ public class Bom2DAOImpl implements Bom2DAO {
     }
 
     @Override
-    public int delete(String bomId) {
-        return sqlSession.delete(NS + "delete", bomId);
+    public int delete(String productCode) {
+        return sqlSession.delete(NS + "delete", productCode);
     }
 
     @Override
@@ -56,6 +56,11 @@ public class Bom2DAOImpl implements Bom2DAO {
     @Override
     public int checkDuplicate(Bom2DTO dto) {
         return sqlSession.selectOne(NS + "checkDuplicate", dto);
+    }
+
+	@Override
+	public List<String> getRegisteredProductCodes() {
+        return sqlSession.selectList(NS + "getRegisteredProductCodes");
     }
 }
 

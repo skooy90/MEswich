@@ -82,7 +82,7 @@ public class Production2Controller {
     public String createProduction(@ModelAttribute Production2DTO production, Model model) {
         String result = productionService.createAllProduction(production);
         if ("SUCCESS".equals(result)) {
-            return "redirect:/mes/production/list";
+            return "redirect:/production/list";
         } else {
             model.addAttribute("error", result);
             // 등록 실패 시 완제품 목록 다시 조회
@@ -92,7 +92,9 @@ public class Production2Controller {
         }
     }
 
-//     * 생산 LOT 상세보기
+    /**
+     * 생산 LOT 상세보기
+     */
     @GetMapping("/detail")
     public String productionDetail(@RequestParam String lotNumber, Model model) {
         Production2DTO production = productionService.getProductionDetail(lotNumber);
@@ -105,7 +107,9 @@ public class Production2Controller {
         }
     }
 
-//     * 생산 LOT 수정 페이지
+    /**
+     * 생산 LOT 수정 페이지
+     */
     @GetMapping("/edit")
     public String editProductionForm(@RequestParam String lotNumber, Model model) {
         Production2DTO production = productionService.getProductionForEdit(lotNumber);
@@ -118,7 +122,9 @@ public class Production2Controller {
         }
     }
 
-//     * 생산 LOT 수정 처리
+    /**
+     * 생산 LOT 수정 처리
+     */
     @PostMapping("/edit")
     public String editProduction(@ModelAttribute Production2DTO production, Model model) {
         String result = productionService.updateProduction(production);
@@ -195,9 +201,10 @@ public class Production2Controller {
             List<DailyProduction2DTO> dailyListByParent = dailyProductionService.selectDailyProductionByParentLot(lotNumber);
             if (dailyListByParent != null && !dailyListByParent.isEmpty()) {
                 DailyProduction2DTO latest = dailyListByParent.get(dailyListByParent.size() - 1);
-                String dailyLotNumber = latest.getLotNumber();
+                String dailyLotNumber = latest.getLotNumber();        // 금일 생산계획 LOT
+                String parentLotNumber = latest.getParentLotNumber(); // 전체 생산계획 LOT
                 // 금일 생산계획에서 작업지시서 자동 생성
-                String workOrderResult = workOrdersService.createWorkOrderFromProduction(dailyLotNumber);
+                String workOrderResult = workOrdersService.createWorkOrderFromProduction(dailyLotNumber, parentLotNumber);
                 
                 if ("SUCCESS".equals(workOrderResult)) {
                     result.put("success", true);
@@ -233,7 +240,6 @@ public class Production2Controller {
         production.setDailyPlanId(dailyPlanId);
         production.setStatus(status);
         production.setUpdatedBy("SYSTEM");
-        
         int updateResult = dailyProductionService.updateDailyProductionStatus(production);
         
         if (updateResult > 0) {

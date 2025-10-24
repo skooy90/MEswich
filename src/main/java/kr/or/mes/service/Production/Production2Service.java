@@ -11,15 +11,7 @@ import kr.or.mes.dto.Standard2DTO;
  */
 public interface Production2Service {
 	
-	//	전체 생산 계획 조회
-	
-	public List<Production2DTO> selectAll();
-	
-	/**
-	 * 금일 모든 생산 LOT 조회
-	 * @return 생산 LOT 목록
-	 */
-	public List<Production2DTO> todoselectAll();
+	// 사용되지 않는 메서드들 제거됨 - 실제로는 selectAllProductionPlans() 사용
 	
 	/**
 	 * 조건에 따른 생산 LOT 검색
@@ -35,12 +27,7 @@ public interface Production2Service {
 	 */
 	public Production2DTO selectByLotNumber(String lotNumber);
 	
-	/**
-	 * 새로운 생산 LOT 등록
-	 * @param production 등록할 생산 LOT 정보
-	 * @return 등록 결과 (1: 성공, 0: 실패)
-	 */
-	public int insert(Production2DTO production);
+	// insert() 메서드 제거됨 - 실제로는 createAllProduction() 사용
 	
 	/**
 	 * 생산 LOT 등록 처리 (비즈니스 로직 포함)
@@ -128,25 +115,7 @@ public interface Production2Service {
 	
 	// ==================== 금일 생산계획 관련 메서드 ====================
 	
-	/**
-	 * 금일 생산계획 조회
-	 * @return 금일 생산계획 목록
-	 */
-	public List<Production2DTO> selectDailyProductionPlans();
-	
-	/**
-	 * 금일 생산계획 조건별 검색
-	 * @param dto 검색 조건이 담긴 DTO
-	 * @return 검색된 금일 생산계획 목록
-	 */
-	public List<Production2DTO> selectDailyProductionByCondition(Production2DTO dto);
-	
-	/**
-	 * 금일 생산계획 등록
-	 * @param production 등록할 금일 생산계획 정보
-	 * @return 등록 결과 메시지
-	 */
-	public String createDailyProduction(Production2DTO production);
+	// 금일 생산계획 관련 메서드들은 DailyProduction2Service에서 처리됨
 	
 	/**
 	 * 전체 생산계획에서 금일 생산계획 생성용 데이터 조회

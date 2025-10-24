@@ -4,7 +4,9 @@ import java.util.Date;
 import lombok.*;
 
 @Data
-
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class LotTracking2DTO {
     private int trackingId;         // 추적 ID
     private String lotNumber;       // LOT 번호

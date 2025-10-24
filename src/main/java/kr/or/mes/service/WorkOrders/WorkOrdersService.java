@@ -11,7 +11,7 @@ public interface WorkOrdersService {
     
 	
 	// 작업지시서 자동 생성
-	String createWorkOrderFromProduction(String lotNumber);
+	String createWorkOrderFromProduction(String dailyLotNumber, String parentLotNumber);
 	
     /**
      * 전체 작업지시서 조회 (JSP에서 필터링용)
@@ -96,4 +96,11 @@ public interface WorkOrdersService {
      * @return 성공 시 "SUCCESS", 실패 시 에러 메시지
      */
     String startWork(String workOrderNo);
+    
+    /**
+     * 작업 중으로 돌아가기 (DONE → IN_PROGRESS)
+     * @param workOrderNo 작업지시번호
+     * @return 성공 시 "SUCCESS", 실패 시 에러 메시지
+     */
+    String backToWork(String workOrderNo);
 }

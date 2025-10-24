@@ -1,28 +1,21 @@
 package kr.or.mes.dto;
 
 import java.util.Date;
-import java.util.List;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ProcessRouting2DTO {
-    private int routingId;
-    private String productCode;
-    private String productName; // ← 추가
-    private int operationSeq;
-    private String operationCode;
-    private String operationName;
-    private String operationDesc;
-    private int standardTime;
-    private Date createdDate;
-    private Date updatedDate;
-    private String createdBy;
-    private String updatedBy;
+    private int routingId;          // 라우팅 ID
+    private String productCode;     // 제품 코드
+    private int operationSeq;       // 공정 순서
+    private String operationCode;   // 공정 코드
+    private String operationName;   // 공정명
+    private Integer standardTime;   // 표준 시간
+    private Date createdDate;       // 등록일
+    private Date updatedDate;       // 수정일
+    private String createdBy;       // 등록자
+    private String updatedBy;       // 수정자
 }

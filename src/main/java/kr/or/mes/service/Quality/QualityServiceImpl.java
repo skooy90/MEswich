@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 
 import kr.or.mes.dao.Quality.QualityDAO;
 import kr.or.mes.dto.Quality2DTO;
+import kr.or.mes.dto.DailyProduction2DTO;
+import kr.or.mes.service.DailyProduction.DailyProduction2Service;
 
 /**
  * 품질검사 Service 구현체
@@ -17,6 +19,9 @@ public class QualityServiceImpl implements QualityService {
 
 	@Autowired
 	private QualityDAO qualityDAO;
+	
+	@Autowired
+	private DailyProduction2Service dailyProductionService;
 	
 	/**
 	 * 품질검사 조회 (통합)
@@ -135,7 +140,7 @@ public class QualityServiceImpl implements QualityService {
 	}
 	
 	/**
-	 * 검사 완료 (검사 결과 입력)
+	 * 검사 완료 (검사 결과 입력) - PASS 레코드 + FAIL 레코드(불량 있을 때) 분리 생성
 	 * @param inspectionNo 검사번호
 	 * @param goodQty 양품수량
 	 * @param defectQty 불량수량
@@ -148,32 +153,79 @@ public class QualityServiceImpl implements QualityService {
 			return "검사번호가 필요합니다.";
 		}
 		
-		if (goodQty == null || defectQty == null) {
-			return "양품수량과 불량수량이 필요합니다.";
+		if (goodQty == null || goodQty < 0) {
+			return "양품수량이 필요합니다.";
 		}
 		
-		if (goodQty < 0 || defectQty < 0) {
-			return "수량은 0 이상이어야 합니다.";
+		if (defectQty == null) {
+			defectQty = 0; // 불량수량이 null이면 0으로 설정
+		}
+		
+		if (defectQty < 0) {
+			return "불량수량은 0 이상이어야 합니다.";
 		}
 		
 		if (goodQty + defectQty == 0) {
 			return "양품수량과 불량수량의 합이 0이 될 수 없습니다.";
 		}
 		
-		Quality2DTO dto = new Quality2DTO();
-		dto.setInspectionNo(inspectionNo);
-		dto.setGoodQty(goodQty);
-		dto.setDefectQty(defectQty);
-		dto.setDefectReason(defectReason);
-		
-		// 검사 결과에 따른 상태 설정
-		if (defectQty == 0) {
-			dto.setStatus("PASS"); // 불량이 없으면 합격
-		} else {
-			dto.setStatus("FAIL"); // 불량이 있으면 불합격
+		try {
+			// 1. 기존 HOLD 레코드를 PASS로 변경
+			Quality2DTO passRecord = new Quality2DTO();
+			passRecord.setInspectionNo(inspectionNo);
+			passRecord.setGoodQty(goodQty);
+			passRecord.setUpdatedBy("SYSTEM");
+			
+			int passResult = qualityDAO.updateQualityToPass(passRecord);
+			if (passResult <= 0) {
+				return "검사 완료 처리에 실패했습니다.";
+			}
+			
+			// 2. 불량이 있으면 FAIL 레코드 생성
+			if (defectQty > 0) {
+				// 기존 검사 정보 조회
+				Quality2DTO originalQuality = qualityDAO.selectQualityByInspectionNo(inspectionNo);
+				if (originalQuality == null) {
+					return "검사 정보를 찾을 수 없습니다.";
+				}
+				
+				Quality2DTO failRecord = new Quality2DTO();
+				failRecord.setWorkOrderNo(originalQuality.getWorkOrderNo());
+				failRecord.setLotNumber(originalQuality.getLotNumber());
+				failRecord.setDefectQty(defectQty);
+				failRecord.setDefectReason(defectReason);
+				
+				int failResult = qualityDAO.insertDefectRecord(failRecord);
+				if (failResult <= 0) {
+					return "불량 레코드 생성에 실패했습니다.";
+				}
+			}
+			
+			// 3. 검사 완료 후 금일생산계획 상태를 'inventory'로 업데이트
+			Quality2DTO originalQuality = qualityDAO.selectQualityByInspectionNo(inspectionNo);
+			if (originalQuality != null && originalQuality.getDailyLotNumber() != null) {
+				// daily_lot_number로 해당하는 금일생산계획 조회
+				DailyProduction2DTO dailyInfo = dailyProductionService.selectDailyProductionByLotNumber(originalQuality.getDailyLotNumber());
+				
+				if (dailyInfo != null) {
+					// 금일생산계획 상태를 'inventory'로 업데이트
+					DailyProduction2DTO dailyProduction = new DailyProduction2DTO();
+					dailyProduction.setDailyPlanId(dailyInfo.getDailyPlanId());
+					dailyProduction.setStatus("inventory");
+					dailyProduction.setUpdatedBy("SYSTEM");
+					
+					int statusUpdateResult = dailyProductionService.updateDailyProductionStatus(dailyProduction);
+					if (statusUpdateResult <= 0) {
+						// 상태 업데이트 실패는 경고만 하고 검사 완료는 성공으로 처리
+						System.err.println("경고: 금일생산계획 상태 업데이트에 실패했습니다. 검사번호: " + inspectionNo);
+					}
+				}
+			}
+			
+			return "SUCCESS";
+			
+		} catch (Exception e) {
+			return "검사 완료 처리 중 오류가 발생했습니다: " + e.getMessage();
 		}
-		
-		int result = qualityDAO.updateQuality(dto);
-		return result > 0 ? "SUCCESS" : "검사 완료 처리에 실패했습니다.";
 	}
 }

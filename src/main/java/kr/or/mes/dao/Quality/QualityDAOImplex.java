@@ -57,4 +57,54 @@ public class QualityDAOImplex implements QualityDAO {
 	public int deleteQuality(String inspectionNo) {
 		return sqlSession.delete("mes.mappers.QualityManagementMapper.deleteQuality", inspectionNo);
 	}
+	
+	/**
+	 * 검사 완료 처리 (HOLD → PASS)
+	 * @param dto 검사 완료 정보
+	 * @return 업데이트된 행 수
+	 */
+	@Override
+	public int updateQualityToPass(Quality2DTO dto) {
+		return sqlSession.update("mes.mappers.QualityManagementMapper.updateQualityToPass", dto);
+	}
+	
+	/**
+	 * 불량 레코드 생성
+	 * @param dto 불량 정보
+	 * @return 등록된 행 수
+	 */
+	@Override
+	public int insertDefectRecord(Quality2DTO dto) {
+		return sqlSession.insert("mes.mappers.QualityManagementMapper.insertDefectRecord", dto);
+	}
+	
+	/**
+	 * 검사번호로 단건 조회
+	 * @param inspectionNo 검사번호
+	 * @return 품질검사 정보
+	 */
+	@Override
+	public Quality2DTO selectQualityByInspectionNo(String inspectionNo) {
+		return sqlSession.selectOne("mes.mappers.QualityManagementMapper.selectQualityByInspectionNo", inspectionNo);
+	}
+	
+	/**
+	 * location 기준으로 품질검사 조회 (등록 전/후 구분)
+	 * @param dto location 조건이 포함된 Quality2DTO
+	 * @return 조건에 맞는 품질검사 목록
+	 */
+	@Override
+	public List<Quality2DTO> selectQualityByLocation(Quality2DTO dto) {
+		return sqlSession.selectList("mes.mappers.QualityManagementMapper.selectQualityByLocation", dto);
+	}
+	
+	/**
+	 * 품질검사 location 업데이트
+	 * @param dto location과 inspectionNo가 포함된 Quality2DTO
+	 * @return 업데이트된 행 수
+	 */
+	@Override
+	public int updateQualityLocation(Quality2DTO dto) {
+		return sqlSession.update("mes.mappers.QualityManagementMapper.updateQualityLocation", dto);
+	}
 }

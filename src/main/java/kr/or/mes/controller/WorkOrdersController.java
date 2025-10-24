@@ -87,6 +87,28 @@ public class WorkOrdersController {
     }
     
     /**
+     * 작업 중으로 돌아가기 (DONE → IN_PROGRESS)
+     * @param workOrderNo 작업지시번호
+     * @return 작업관리 페이지로 리다이렉트
+     */
+    @PostMapping("/backToWork")
+    public String backToWork(@RequestParam String workOrderNo) {
+        workOrdersService.backToWork(workOrderNo);
+        return "redirect:/work";
+    }
+    
+    /**
+     * 품질관리로 전달 (DONE → 품질관리)
+     * @param workOrderNo 작업지시번호
+     * @return 작업관리 페이지로 리다이렉트
+     */
+    @PostMapping("/transferToQuality")
+    public String transferToQuality(@RequestParam String workOrderNo) {
+        workOrdersService.transferToQuality(workOrderNo);
+        return "redirect:/work";
+    }
+    
+    /**
      * 검색 기능
      * @param searchCategory 검색 카테고리
      * @param searchKeyword 검색 키워드
