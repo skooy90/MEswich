@@ -302,3 +302,121 @@ CREATE INDEX idx_work_orders2_status ON Work_Orders2(status);
 
 
 commit;
+
+
+추가적인 트래거 설정
+
+1, ️Production2 — 생산 계획 등록 시 (PLANNED)
+CREATE OR REPLACE TRIGGER trg_tracking_prod2
+AFTER INSERT ON Production2
+FOR EACH ROW
+BEGIN
+    INSERT INTO Lot_Tracking2 (
+        tracking_id, lot_number, status, start_date, created_date, updated_by
+    ) VALUES (
+        seq_tracking2.NEXTVAL,
+        :NEW.lot_number,
+        'PLANNED',
+        SYSDATE,
+        SYSDATE,
+        NVL(:NEW.created_by, 'system')
+    );
+END;
+/
+2. Work_Orders2 — 작업 시작/완료 시
+
+CREATE OR REPLACE TRIGGER trg_tracking_workorders2
+AFTER UPDATE OF status ON Work_Orders2
+FOR EACH ROW
+WHEN (OLD.status != NEW.status)
+BEGIN
+    IF :NEW.status = 'IN_PROGRESS' THEN
+        INSERT INTO Lot_Tracking2 (
+            tracking_id, lot_number, status, start_date, created_date, updated_by
+        ) VALUES (
+            seq_tracking2.NEXTVAL,
+            :NEW.lot_number,
+            'IN_PROGRESS',
+            SYSDATE,
+            SYSDATE,
+            NVL(:NEW.updated_by, 'system')
+        );
+    ELSIF :NEW.status = 'DONE' THEN
+        INSERT INTO Lot_Tracking2 (
+            tracking_id, lot_number, status, start_date, created_date, updated_by
+        ) VALUES (
+            seq_tracking2.NEXTVAL,
+            :NEW.lot_number,
+            'COMPLETED',
+            SYSDATE,
+            SYSDATE,
+            NVL(:NEW.updated_by, 'system')
+        );
+    END IF;
+END;
+/
+3. Quality2 — 품질검사 생성 및 판정 시
+
+CREATE OR REPLACE TRIGGER trg_tracking_quality2
+AFTER INSERT OR UPDATE OF status ON Quality2
+FOR EACH ROW
+BEGIN
+    -- 품질검사 생성 시
+    IF INSERTING THEN
+        INSERT INTO Lot_Tracking2 (
+            tracking_id, lot_number, status, start_date, created_date, updated_by
+        ) VALUES (
+            seq_tracking2.NEXTVAL,
+            :NEW.lot_number,
+            'WAIT_QUALITY',
+            SYSDATE,
+            SYSDATE,
+            NVL(:NEW.created_by, 'system')
+        );
+    END IF;
+
+    -- 검사 결과 판정 시
+    IF UPDATING THEN
+        IF :NEW.status = 'PASS' THEN
+            INSERT INTO Lot_Tracking2 (
+                tracking_id, lot_number, status, start_date, created_date, updated_by
+            ) VALUES (
+                seq_tracking2.NEXTVAL,
+                :NEW.lot_number,
+                'QUALITY_PASS',
+                SYSDATE,
+                SYSDATE,
+                NVL(:NEW.updated_by, 'inspector')
+            );
+        ELSIF :NEW.status = 'FAIL' THEN
+            INSERT INTO Lot_Tracking2 (
+                tracking_id, lot_number, status, start_date, created_date, updated_by
+            ) VALUES (
+                seq_tracking2.NEXTVAL,
+                :NEW.lot_number,
+                'QUALITY_FAIL',
+                SYSDATE,
+                SYSDATE,
+                NVL(:NEW.updated_by, 'inspector')
+            );
+        END IF;
+    END IF;
+END;
+/
+4. Inventory2 — 재고 반영 시
+CREATE OR REPLACE TRIGGER trg_tracking_inventory2
+AFTER INSERT ON Inventory2
+FOR EACH ROW
+BEGIN
+    INSERT INTO Lot_Tracking2 (
+        tracking_id, lot_number, status, start_date, created_date, updated_by
+    ) VALUES (
+        seq_tracking2.NEXTVAL,
+        :NEW.lot_number,
+        'INVENTORY_CONFIRMED',
+        SYSDATE,
+        SYSDATE,
+        NVL(:NEW.created_by, 'warehouse')
+    );
+END;
+/
