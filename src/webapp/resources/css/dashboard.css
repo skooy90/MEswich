@@ -1,0 +1,591 @@
+/* 대시보드 전체 컨테이너 - 사이드바 고려 */
+.dashboard-container {
+    max-width: 1400px;
+    margin: 0 0 0 220px; /* 사이드바 너비(200px) + 여백(20px) */
+    padding: 20px;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+/* 대시보드 헤더 */
+.dashboard-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dashboard-header h1 {
+    margin: 0 0 10px 0;
+    font-size: 2.5em;
+    font-weight: 300;
+}
+
+.dashboard-header p {
+    margin: 0;
+    font-size: 1.2em;
+    opacity: 0.9;
+}
+
+/* 6개 위젯 그리드 */
+.widget-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+/* 위젯 카드 */
+.widget-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    min-height: 400px;
+}
+
+.widget-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* 위젯 헤더 */
+.widget-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px 15px 25px;
+    border-bottom: 1px solid #ecf0f1;
+}
+
+.widget-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+.widget-icon {
+    font-size: 1.5em;
+    opacity: 0.7;
+}
+
+/* 위젯 콘텐츠 */
+.widget-content {
+    padding: 25px;
+    height: calc(100% - 80px);
+}
+
+/* 생산 항목 선택기 */
+.production-selector {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.production-selector label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.production-selector select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    font-size: 14px;
+    background-color: white;
+}
+
+/* 선택된 생산 항목 상세 정보 */
+.selected-production-info {
+    margin-bottom: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 10px;
+}
+
+.selected-production-info h4 {
+    margin: 0 0 15px 0;
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+.production-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 500;
+    opacity: 0.9;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: #fff;
+}
+
+/* 상태별 색상 */
+.status-planned {
+    color: #3498db !important;
+}
+
+.status-in_progress {
+    color: #f39c12 !important;
+}
+
+.status-completed {
+    color: #2ecc71 !important;
+}
+
+.status-cancelled {
+    color: #e74c3c !important;
+}
+
+/* 1번 위젯: 생산량 통계 카드들 */
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    border-left: 4px solid #3498db;
+}
+
+.stat-card.actual-card {
+    border-left-color: #2ecc71;
+}
+
+.stat-card.completion-card {
+    border-left-color: #f39c12;
+}
+
+.card-icon {
+    font-size: 2em;
+    margin-right: 10px;
+    opacity: 0.8;
+}
+
+.card-content h4 {
+    margin: 0 0 5px 0;
+    color: #666;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.stat-number {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.stat-unit {
+    color: #7f8c8d;
+    font-size: 0.8em;
+    margin-top: 2px;
+}
+
+/* 차트 컨테이너 */
+.chart-container {
+    height: 200px;
+    position: relative;
+}
+
+/* 미구현 위젯 스타일 */
+.coming-soon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #7f8c8d;
+    text-align: center;
+}
+
+.coming-soon-icon {
+    font-size: 3em;
+    margin-bottom: 15px;
+    opacity: 0.5;
+}
+
+.coming-soon p {
+    font-size: 1.2em;
+    font-weight: 500;
+    margin: 0 0 5px 0;
+    color: #95a5a6;
+}
+
+.coming-soon small {
+    font-size: 0.9em;
+    opacity: 0.7;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 1200px) {
+    .widget-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        margin-left: 0; /* 모바일에서는 사이드바 숨김 */
+        padding: 10px;
+    }
+    
+    .widget-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-cards {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+    
+    .production-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .detail-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}
+
+/* ===== 2번 위젯: 불량 통계 위젯 스타일 ===== */
+.defect-stats-widget {
+    background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+    border-left: 4px solid #e74c3c;
+}
+
+.defect-stats-widget .widget-header {
+    background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+    color: white;
+}
+
+.defect-summary {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(231, 76, 60, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+.defect-total {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+
+.defect-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #e74c3c;
+    line-height: 1;
+}
+
+.defect-unit {
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    font-weight: 500;
+}
+
+.defect-label {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    font-weight: 500;
+}
+
+.defect-chart-container {
+    height: 200px;
+    position: relative;
+}
+
+/* 불량 통계 위젯 반응형 */
+@media (max-width: 768px) {
+    .defect-number {
+        font-size: 2rem;
+    }
+    
+    .defect-unit {
+        font-size: 1rem;
+    }
+    
+    .defect-chart-container {
+        height: 150px;
+    }
+}
+
+/* ===== 3번 위젯: 불량 원인별 위젯 스타일 ===== */
+.defect-cause-widget {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-left: 4px solid #6c757d;
+}
+
+.defect-cause-widget .widget-header {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    color: white;
+}
+
+.defect-cause-summary {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(108, 117, 125, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(108, 117, 125, 0.2);
+}
+
+.defect-cause-total {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+
+.defect-cause-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #6c757d;
+    line-height: 1;
+}
+
+.defect-cause-unit {
+    font-size: 1.2rem;
+    color: #7f8c8d;
+    font-weight: 500;
+}
+
+.defect-cause-label {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    font-weight: 500;
+}
+
+.defect-cause-chart-container {
+    height: 200px;
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.defect-cause-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.legend-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.legend-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.legend-count {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+}
+
+/* 불량 원인별 위젯 반응형 */
+@media (max-width: 768px) {
+    .defect-cause-number {
+        font-size: 2rem;
+    }
+    
+    .defect-cause-unit {
+        font-size: 1rem;
+    }
+    
+    .defect-cause-chart-container {
+        height: 150px;
+    }
+    
+    .legend-item {
+        gap: 8px;
+    }
+    
+    .legend-color {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .legend-name {
+        font-size: 0.8rem;
+    }
+    
+    .legend-count {
+        font-size: 0.7rem;
+    }
+}
+
+/* ===== 4번 위젯: 작업현황 위젯 스타일 ===== */
+.work-status-widget {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-left: 4px solid #17a2b8;
+}
+
+.work-status-widget .widget-header {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: white;
+}
+
+.work-summary {
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(23, 162, 184, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(23, 162, 184, 0.2);
+}
+
+.work-total {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+
+.work-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #17a2b8;
+    line-height: 1;
+}
+
+.work-unit {
+    font-size: 1.2rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.work-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.work-chart-container {
+    height: 200px;
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.product-status-table {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.product-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: rgba(23, 162, 184, 0.05);
+    border-radius: 6px;
+    border: 1px solid rgba(23, 162, 184, 0.1);
+}
+
+.product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.product-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.product-qty {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+.product-rate {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #17a2b8;
+    padding: 4px 8px;
+    background: rgba(23, 162, 184, 0.1);
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    .work-number {
+        font-size: 2rem;
+    }
+    .work-unit {
+        font-size: 1rem;
+    }
+    .work-chart-container {
+        height: 150px;
+    }
+    .product-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    .product-rate {
+        align-self: flex-end;
+    }
+}
