@@ -30,7 +30,7 @@ public class AuthController {
         if (user != null) {
             session.setAttribute("loginUser", user);
             System.out.println("✅ 로그인 성공: " + user.getUserId());
-            return "redirect:/standard2/list"; // 로그인 성공 시 첫 페이지
+            return "redirect:/dashboard"; // 로그인 성공 시 첫 페이지
         } else {
             model.addAttribute("error", "아이디 또는 비밀번호가 올바르지 않습니다.");
             return "auth/login";

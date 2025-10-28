@@ -17,3 +17,4 @@ public class WorkStatusDTO {
     private String status;      // READY, IN_PROGRESS, DONE, CANCELLED
     private int workCount;      // 해당 상태의 작업 수
 }
+

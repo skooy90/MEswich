@@ -4,10 +4,10 @@ import java.util.List;
 
 import kr.or.mes.dto.Production2DTO;
 import kr.or.mes.dto.Dashboard.DashboardDataDTO;
+import kr.or.mes.dto.Dashboard.DefectCauseStatsDTO;
+import kr.or.mes.dto.Dashboard.DefectStatsDTO;
 import kr.or.mes.dto.Dashboard.ProductionStatsDTO;
 import kr.or.mes.dto.Dashboard.ProductionStatusDTO;
-import kr.or.mes.dto.Dashboard.DefectStatsDTO;
-import kr.or.mes.dto.Dashboard.DefectCauseStatsDTO;
 import kr.or.mes.dto.Dashboard.WorkStatusStatsDTO;
 
 /**

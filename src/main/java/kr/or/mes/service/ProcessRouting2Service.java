@@ -14,33 +14,31 @@ public class ProcessRouting2Service {
     private ProcessRouting2DAO dao;
 
     public List<ProcessRouting2DTO> getAllRoutings() {
-        return dao.selectAllRoutings();
+        return dao.selectAll();
     }
 
-    public List<ProcessRouting2DTO> getRoutingDetail(String productCode) {
-        return dao.selectRoutingDetail(productCode);
+    public ProcessRouting2DTO getRoutingById(int routingId) {
+        return dao.selectById(routingId);
     }
 
-    public void insertRouting(ProcessRouting2DTO dto) {
-        dao.insertRouting(dto);
+    public int insertRouting(ProcessRouting2DTO dto) {
+        return dao.insert(dto);
     }
 
-    public void updateRouting(ProcessRouting2DTO dto) {
-        dao.updateRouting(dto);
+    public int updateRouting(ProcessRouting2DTO dto) {
+        return dao.update(dto);
     }
 
-    public void deleteRouting(String productCode) {
-        dao.deleteRouting(productCode);
+    public int deleteRouting(int routingId) {
+        return dao.delete(routingId);
     }
-    public int getLastRoutingId() {
-        return dao.getLastRoutingId();
+    
+    public List<ProcessRouting2DTO> getDistinctProductList() {
+        return dao.selectDistinctProducts();
     }
-    public void insertRoutingMaterial(int routingId, String materialCode) {
-        dao.insertRoutingMaterial(routingId, materialCode);
-    }
- // ProcessRouting2Service.java
-    public int getNextOperationSeq() {
-        return dao.getNextOperationSeq();
+
+    public List<ProcessRouting2DTO> getRoutingsByProductCode(String productCode) {
+        return dao.selectByProductCode(productCode);
     }
 
 }

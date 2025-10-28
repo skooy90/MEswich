@@ -13,7 +13,9 @@ import kr.or.mes.dto.Dashboard.ProductionStatsDTO;
 import kr.or.mes.dto.Dashboard.DefectStatsDTO;
 import kr.or.mes.dto.Dashboard.DefectCauseStatsDTO;
 import kr.or.mes.dto.Dashboard.WorkStatusStatsDTO;
+import kr.or.mes.dto.LotTracking2DTO;
 import kr.or.mes.service.Dashboard.DashboardService;
+import kr.or.mes.service.LotTracking2Service;
 
 /**
  * 대시보드 Controller
@@ -25,6 +27,9 @@ public class DashboardController {
 
     @Autowired
     private DashboardService dashboardService;
+    
+    @Autowired
+    private LotTracking2Service lotTracking2Service;
 
     /**
      * 대시보드 메인 페이지 - 6개 위젯 구조
@@ -113,5 +118,16 @@ public class DashboardController {
     @ResponseBody
     public WorkStatusStatsDTO getWorkStatusStats() {
         return dashboardService.getWorkStatusStats();
+    }
+    
+    /**
+     * 5번 위젯: LOT 추적 API (AJAX용)
+     * @param lotNumber LOT 번호
+     * @return LOT 추적 정보 목록
+     */
+    @GetMapping("/api/lot-tracking")
+    @ResponseBody
+    public java.util.List<LotTracking2DTO> getLotTracking(@RequestParam String lotNumber) {
+        return lotTracking2Service.getTrackingByLot(lotNumber);
     }
 }

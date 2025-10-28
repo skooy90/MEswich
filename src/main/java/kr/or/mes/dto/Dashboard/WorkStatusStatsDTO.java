@@ -23,3 +23,7 @@ public class WorkStatusStatsDTO {
     private List<WorkStatusDTO> statusList;     // 상태별 분포
     private List<ProductStatusDTO> productList; // 완제품별 현황
 }
+
+
+
+

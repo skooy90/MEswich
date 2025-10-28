@@ -18,6 +18,7 @@ public class LoginCheckFilter implements Filter {
         "/mes/auth/logout",
         "/mes/css/",
         "/mes/js/",
+        "/mes/lotTracking2/",
         "/mes/images/"
     );
 
@@ -36,6 +37,7 @@ public class LoginCheckFilter implements Filter {
             uri.equals(contextPath + "/auth/logout") ||
             uri.startsWith(contextPath + "/css/") ||
             uri.startsWith(contextPath + "/js/") ||
+            uri.startsWith(contextPath + "/lotTracking2/") ||
             uri.startsWith(contextPath + "/images/")) {
             chain.doFilter(request, response);
             return;

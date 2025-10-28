@@ -20,3 +20,4 @@ public class ProductStatusDTO {
     private String workStatus;      // 작업 상태
     private double completionRate;  // 완료율
 }
+

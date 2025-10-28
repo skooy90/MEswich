@@ -1,9 +1,6 @@
 package kr.or.mes.dao;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -13,51 +10,44 @@ import kr.or.mes.dto.ProcessRouting2DTO;
 @Repository
 public class ProcessRouting2DAOImpl implements ProcessRouting2DAO {
 
-    private static final String NS = "kr.or.mes.dao.ProcessRouting2DAO.";
+    private final String namespace = "kr.or.mes.dao.ProcessRouting2DAO";
 
     @Autowired
     private SqlSession sqlSession;
 
     @Override
-    public List<ProcessRouting2DTO> selectAllRoutings() {
-        return sqlSession.selectList(NS + "selectAllRoutings");
+    public List<ProcessRouting2DTO> selectAll() {
+        return sqlSession.selectList(namespace + ".selectAll");
     }
 
     @Override
-    public List<ProcessRouting2DTO> selectRoutingDetail(String productCode) {
-        return sqlSession.selectList(NS + "selectRoutingDetail", productCode);
+    public ProcessRouting2DTO selectById(int routingId) {
+        return sqlSession.selectOne(namespace + ".selectById", routingId);
     }
 
     @Override
-    public int insertRouting(ProcessRouting2DTO dto) {
-        return sqlSession.insert(NS + "insertRouting", dto);
+    public int insert(ProcessRouting2DTO dto) {
+        return sqlSession.insert(namespace + ".insert", dto);
     }
 
     @Override
-    public int updateRouting(ProcessRouting2DTO dto) {
-        return sqlSession.update(NS + "updateRouting", dto);
+    public int update(ProcessRouting2DTO dto) {
+        return sqlSession.update(namespace + ".update", dto);
     }
 
     @Override
-    public int deleteRouting(String productCode) {
-        return sqlSession.delete(NS + "deleteRouting", productCode);
-    }
-
-    @Override
-    public int getLastRoutingId() {
-        return sqlSession.selectOne(NS + "getLastRoutingId");
-    }
-
-    @Override
-    public int insertRoutingMaterial(int routingId, String materialCode) {
-        Map<String, Object> map = new HashMap<>();
-        map.put("routingId", routingId);
-        map.put("materialCode", materialCode);
-        return sqlSession.insert(NS + "insertRoutingMaterial", map);
+    public int delete(int routingId) {
+        return sqlSession.delete(namespace + ".delete", routingId);
     }
     
     @Override
-    public int getNextOperationSeq() {
-        return sqlSession.selectOne(NS + "getNextOperationSeq");
+    public List<ProcessRouting2DTO> selectDistinctProducts() {
+        return sqlSession.selectList(namespace + ".selectDistinctProducts");
     }
+
+    @Override
+    public List<ProcessRouting2DTO> selectByProductCode(String productCode) {
+        return sqlSession.selectList(namespace + ".selectByProductCode", productCode);
+    }
+
 }
