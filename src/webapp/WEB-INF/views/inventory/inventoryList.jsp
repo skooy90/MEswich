@@ -213,12 +213,6 @@
             background-color: #138496;
         }
 
-        /* 제목 스타일 */
-        h2 {
-            margin-top: 0;
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
 
         /* 체크박스 스타일 */
         .checkbox-cell {

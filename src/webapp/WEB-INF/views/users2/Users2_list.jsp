@@ -7,22 +7,46 @@
 <jsp:include page="/WEB-INF/views/basic/sidebar.jsp" />
 
 <style>
+/* 전역 스타일 */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
 .content {
     margin-left: 220px;
-    padding: 30px;
-    background-color: #fff;
-    min-height: 100vh;
+    margin-top: 80px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 80px);
 }
 
-h2 {
+
+/* 페이지 헤더 스타일 */
+.content > div:first-of-type {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 20px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
 }
 
+/* 테이블 컨테이너 */
 .table-container {
     background: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    padding: 0;
+    border: 1px solid #e9ecef;
+    overflow: hidden;
 }
 
 table {
@@ -30,41 +54,102 @@ table {
     border-collapse: collapse;
     text-align: center;
 }
+
 th, td {
-    border: 1px solid #ddd;
-    padding: 10px;
+    border: 1px solid #e9ecef;
+    padding: 12px;
+    font-size: 14px;
 }
+
 th {
-    background-color: #f4f6f8;
+    background-color: #f8f9fa;
+    font-weight: 700;
+    color: #495057;
+    border-bottom: 2px solid #e9ecef;
 }
+
 tr:hover {
-    background-color: #f9f9f9;
+    background-color: #f8f9fa;
 }
+
+/* 버튼 스타일 */
 .btn {
     display: inline-block;
     background-color: #2c3e50;
     color: #fff;
-    padding: 6px 12px;
+    padding: 8px 16px;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     text-decoration: none;
     cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.15s ease-in-out;
 }
+
 .btn:hover {
-    background-color: #1a252f;
+    background-color: #34495e;
+    transform: translateY(-1px);
 }
+
 .btn-secondary {
-    background-color: #7f8c8d;
+    background-color: #6c757d;
 }
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
 .btn-danger {
-    background-color: #c0392b;
+    background-color: #d63384;
 }
+
 .btn-danger:hover {
-    background-color: #922b21;
+    background-color: #c2185b;
 }
+
+/* 액션 링크 */
 .action-links a {
     margin: 0 6px;
     text-decoration: none;
+    color: #0b5ed7;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.action-links a:hover {
+    text-decoration: underline;
+}
+
+.action-links a[style*="color:#c0392b"] {
+    color: #d63384 !important;
+}
+
+/* 알림 메시지 스타일 */
+.content > div:first-of-type script {
+    display: none;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+    .content {
+        margin-left: 0;
+        padding: 10px;
+    }
+    
+    .content > div:first-of-type {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    table {
+        font-size: 12px;
+    }
+    
+    th, td {
+        padding: 8px 6px;
+    }
 }
 </style>
 

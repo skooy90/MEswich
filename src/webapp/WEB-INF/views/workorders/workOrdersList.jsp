@@ -236,13 +236,6 @@
             color: #2e7d32;
         }
 
-        /* 제목 스타일 */
-        h2 {
-            margin-top: 0;
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-
         /* 반응형 디자인 */
         @media (max-width: 768px) {
             .main-content {
@@ -338,12 +331,15 @@
                                         작업 전 
                                         </span>
                                     </td>
-                                    <td>${workOrder.workerId != null ? workOrder.workerId : '미배정'}</td>
+                                    <td>${workOrder.workerId != null ? workOrder.workerId : '관리자'}</td>
                                     <td>
                                         <form method="post" action="/mes/work/startWork" style="display: inline;">
                                             <input type="hidden" name="workOrderNo" value="${workOrder.workOrderNo}">
                                             <button type="submit" class="action-btn btn-primary">작업진행</button>
                                         </form>
+                                            <a href="/mes/bom2/detail/${workOrder.productCode}">
+                                            <button type="submit" class="action-btn btn-primary">BOM보기</button>
+                                            </a>
                                     </td>
                                 </tr>
                             </c:if>
@@ -396,7 +392,7 @@
                                     <td>
                                         <span class="status-badge status-in-progress">진행중 </span>
                                     </td>
-                                    <td>${workOrder.workerId != null ? workOrder.workerId : '미배정'}</td>
+                                    <td>${workOrder.workerId != null ? workOrder.workerId : '관리자'}</td>
                                     <td>
                                         <form method="post" action="/mes/work/updateProduction" style="display: inline;">
                                             <input type="hidden" name="workOrderNo" value="${workOrder.workOrderNo}">
@@ -461,7 +457,7 @@
                                     <td>
                                         <span class="status-badge status-completed">완료</span>
                                     </td>
-                                    <td>${workOrder.workerId != null ? workOrder.workerId : '미배정'}</td>
+                                    <td>${workOrder.workerId != null ? workOrder.workerId : '관리자'}</td>
                                     <td>
                                         <c:choose>
                                             <c:when test="${not empty workOrder.endDate}">

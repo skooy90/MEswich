@@ -34,15 +34,6 @@ body {
 	margin: 0 auto;
 }
 
-/* 제목 스타일 */
-h2 {
-	margin-top: 0;
-	color: #2c3e50;
-	margin-bottom: 30px;
-	text-align: center;
-	border-bottom: 2px solid #007bff;
-	padding-bottom: 10px;
-}
 
 /* 정보 테이블 */
 .info-table {
@@ -242,7 +233,7 @@ h2 {
 						</tr>
 					</c:if>
 				</table>
-			<img src="/mes/qr/generate?content=http://116.36.205.25:9003/mes/production/detail?lotNumber=${production.lotNumber}&size=150"
+			<img src="/mes/qr/generate?content=http://116.36.205.25:9004/mes/lotTracking2/search?lotNumber=${production.lotNumber}&size=150"
 				alt="QR Code" />
 
 				<div class="button-group">

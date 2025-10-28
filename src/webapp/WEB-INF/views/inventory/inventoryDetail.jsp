@@ -106,12 +106,6 @@
             background-color: #7f8c8d;
         }
 
-        /* 제목 스타일 */
-        h2 {
-            margin-top: 0;
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
 
         /* 반응형 디자인 */
         @media (max-width: 768px) {

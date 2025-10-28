@@ -71,11 +71,6 @@
     margin-bottom: 18px;
 }
 
-h2 {
-    margin: 0 0 6px 0;
-    color: #2c3e50;
-}
-
 .subtitle {
     margin: 0;
     color: #6c757d;

@@ -115,28 +115,44 @@
                 </div>
             </div>
             
-            <!-- 2번 위젯: 날짜별 불량 갯수 현황 -->
-            <div class="widget-card defect-stats-widget">
+            <!-- 2번 위젯: 작업현황 -->
+            <div class="widget-card work-status-widget">
                 <div class="widget-header">
-                    <h3>날짜별 불량 갯수 현황</h3>
+                    <h3>작업현황</h3>
                     <div class="widget-icon">📊</div>
                 </div>
                 <div class="widget-content">
-                    <!-- 총 불량 갯수 표시 -->
-                    <div class="defect-summary">
-                        <div class="defect-total">
-                            <span class="defect-number" id="total-defects">${defectStats.totalDefects}</span>
-                            <span class="defect-unit">개</span>
+                    <!-- 총 작업 현황 카드 -->
+                    <div class="work-summary">
+                        <div class="work-total">
+                            <span class="work-number">${workStatusStats.totalWorks}</span>
+                            <span class="work-unit">개</span>
                         </div>
-                        <div class="defect-label">총 불량 갯수</div>
+                        <div class="work-label">총 작업 수</div>
                     </div>
                     
-                    <!-- 날짜별 불량 갯수 차트 -->
-                    <div class="defect-chart-container">
-                        <canvas id="defectChart"></canvas>
+                    <!-- 작업 상태별 도넛 차트 -->
+                    <div class="work-chart-container">
+                        <canvas id="workStatusChart"></canvas>
+                    </div>
+                    
+                    <!-- 완제품별 현황 테이블 -->
+                    <div class="product-status-table">
+                        <c:if test="${not empty workStatusStats.productList}">
+                            <c:forEach var="product" items="${workStatusStats.productList}">
+                                <div class="product-row">
+                                    <div class="product-info">
+                                        <span class="product-name">${product.productName}</span>
+                                        <span class="product-qty">계획: ${product.plannedQty} | 실제: ${product.actualQty}</span>
+                                    </div>
+                                    <div class="product-rate">${product.completionRate}%</div>
+                                </div>
+                            </c:forEach>
+                        </c:if>
                     </div>
                 </div>
             </div>
+            
             
             <!-- 3번 위젯: 불량 원인별 횟수 -->
             <div class="widget-card defect-cause-widget">
@@ -176,73 +192,66 @@
                 </div>
             </div>
             
-            <!-- 4번 위젯: 작업현황 -->
-            <div class="widget-card work-status-widget">
+            <!-- 4번 위젯: 날짜별 불량 갯수 현황 -->
+            <div class="widget-card defect-stats-widget">
                 <div class="widget-header">
-                    <h3>작업현황</h3>
+                    <h3>날짜별 불량 갯수 현황</h3>
                     <div class="widget-icon">📊</div>
                 </div>
                 <div class="widget-content">
-                    <!-- 총 작업 현황 카드 -->
-                    <div class="work-summary">
-                        <div class="work-total">
-                            <span class="work-number">${workStatusStats.totalWorks}</span>
-                            <span class="work-unit">개</span>
+                    <!-- 총 불량 갯수 표시 -->
+                    <div class="defect-summary">
+                        <div class="defect-total">
+                            <span class="defect-number" id="total-defects">${defectStats.totalDefects}</span>
+                            <span class="defect-unit">개</span>
                         </div>
-                        <div class="work-label">총 작업 수</div>
+                        <div class="defect-label">총 불량 갯수</div>
                     </div>
                     
-                    <!-- 작업 상태별 도넛 차트 -->
-                    <div class="work-chart-container">
-                        <canvas id="workStatusChart"></canvas>
-                    </div>
-                    
-                    <!-- 완제품별 현황 테이블 -->
-                    <div class="product-status-table">
-                        <c:if test="${not empty workStatusStats.productList}">
-                            <c:forEach var="product" items="${workStatusStats.productList}">
-                                <div class="product-row">
-                                    <div class="product-info">
-                                        <span class="product-name">${product.productName}</span>
-                                        <span class="product-qty">계획: ${product.plannedQty} | 실제: ${product.actualQty}</span>
-                                    </div>
-                                    <div class="product-rate">${product.completionRate}%</div>
-                                </div>
-                            </c:forEach>
-                        </c:if>
+                    <!-- 날짜별 불량 갯수 차트 -->
+                    <div class="defect-chart-container">
+                        <canvas id="defectChart"></canvas>
                     </div>
                 </div>
             </div>
-            
-            <!-- 5번 위젯: 양품현황 (미구현) -->
-            <div class="widget-card quality-widget">
-                <div class="widget-header">
-                    <h3>양품현황</h3>
-                    <div class="widget-icon">✅</div>
-                </div>
-                <div class="widget-content">
-                    <div class="coming-soon">
-                        <div class="coming-soon-icon">🚧</div>
-                        <p>구현 예정</p>
-                        <small>품질 현황 및 양품률</small>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 6번 위젯: LOT 추적 (미구현) -->
+            <!-- 5번 위젯: LOT 추적 -->
             <div class="widget-card lot-tracking-widget">
                 <div class="widget-header">
                     <h3>LOT 추적</h3>
                     <div class="widget-icon">🔍</div>
                 </div>
                 <div class="widget-content">
-                    <div class="coming-soon">
-                        <div class="coming-soon-icon">🚧</div>
-                        <p>구현 예정</p>
-                        <small>LOT 번호 검색 기능</small>
+                    <!-- LOT 검색 입력창 -->
+                    <div class="lot-search-container">
+                        <input type="text" id="lotSearchInput" placeholder="LOT 번호를 입력하세요" />
+                        <button onclick="searchLot()">검색</button>
+                    </div>
+                    
+                    <!-- 검색 결과 영역 -->
+                    <div id="lotTrackingResult" class="lot-tracking-result">
+                        <div class="no-search">
+                            <p>LOT 번호를 입력하여 추적 정보를 확인하세요</p>
+                        </div>
                     </div>
                 </div>
             </div>
+            
+<!-- 6번 위젯: Chatbot -->
+<div class="widget-card chatbot-widget">
+    <div class="widget-header">
+        <h3>MEswich AI 챗봇</h3>
+        <div class="widget-icon">🤖</div>
+    </div>
+    <div class="widget-content chatbot-container">
+        <div class="chatbot-box">
+            <textarea id="chatbot-question" rows="3" cols="50" placeholder="질문을 입력하세요" style="width:100%; resize:none;"></textarea><br>
+            <button onclick="sendChatbotQuestion()" class="chatbot-btn">질문하기</button>
+
+            <h4>응답:</h4>
+            <div id="chatbot-response" style="white-space: pre-wrap; background:#f9f9f9; border:1px solid #ddd; border-radius:6px; padding:10px; min-height:60px;"></div>
+        </div>
+    </div>
+</div>
             
         </div>
     </div>
@@ -474,6 +483,11 @@
             createDefectChart();
             createDefectCauseChart();
             createWorkStatusChart();
+            
+            // 작업현황 하단 테이블 페이징 초기화 추가
+            setTimeout(() => {
+                initWorkStatusPagination();
+            }, 100);
         });
         
         // 3번 위젯: 불량 원인별 도넛 차트 생성
@@ -593,6 +607,234 @@
                     cutout: '60%' // 도넛 차트의 내부 구멍 크기
                 }
             });
+        }
+        
+        // LOT 검색 기능
+        function searchLot() {
+            const lotNumber = document.getElementById('lotSearchInput').value;
+            if (!lotNumber.trim()) {
+                alert('LOT 번호를 입력해주세요.');
+                return;
+            }
+            
+            fetch('/mes/dashboard/api/lot-tracking?lotNumber=' + encodeURIComponent(lotNumber))
+                .then(response => response.json())
+                .then(data => {
+                    displayLotTrackingResult(data, lotNumber);
+                })
+                .catch(error => {
+                    console.error('LOT 추적 조회 중 오류:', error);
+                    alert('LOT 정보를 불러오는 중 오류가 발생했습니다.');
+                });
+        }
+        
+        // 상태값을 한글로 변환하는 함수
+        function getStatusKorean(status) {
+            const statusMap = {
+                'PLANNED': '계획됨',
+                'IN_PROGRESS': '진행중',
+                'COMPLETED': '완료',
+                'HOLD': '보류',
+                'CANCELLED': '취소됨',
+                'WAIT_QUALITY': '품질검사 대기',
+                'QUALITY_PASS': '품질검사 통과',
+                'QUALITY_FAIL': '품질검사 실패',
+                'INVENTORY_CONFIRMED': '재고 확정'
+            };
+            return statusMap[status] || status; // 매핑되지 않은 경우 원본 반환
+        }
+        
+        // LOT 추적 결과 표시
+        function displayLotTrackingResult(trackingList, lotNumber) {
+            const resultDiv = document.getElementById('lotTrackingResult');
+            
+            if (!trackingList || trackingList.length === 0) {
+                resultDiv.innerHTML = 
+                    '<div class="no-result">' +
+                        '<p>LOT 번호 "' + lotNumber + '"에 대한 추적 정보가 없습니다.</p>' +
+                    '</div>';
+                return;
+            }
+            
+            // 현재 상태 (가장 최근)
+            const currentStatus = trackingList[trackingList.length - 1];
+            
+            // 이력 목록 (최근 5건만)
+            const recentHistory = trackingList.slice(-5).reverse();
+            
+            // 이력 HTML 생성
+            let historyHtml = '';
+            for (let i = 0; i < recentHistory.length; i++) {
+                const item = recentHistory[i];
+                const koreanStatus = getStatusKorean(item.status);
+                historyHtml += '<div class="history-item">';
+                historyHtml += '<span class="status-badge status-' + item.status.toLowerCase() + '">' + koreanStatus + '</span>';
+                historyHtml += '<span class="date">' + formatDate(item.startDate) + '</span>';
+                if (item.remarks) {
+                    historyHtml += '<span class="remarks">' + item.remarks + '</span>';
+                }
+                historyHtml += '</div>';
+            }
+            
+            const currentKoreanStatus = getStatusKorean(currentStatus.status);
+            
+            resultDiv.innerHTML = 
+                '<div class="lot-summary">' +
+                    '<h4>' + lotNumber + '</h4>' +
+                    '<div class="current-status">' +
+                        '현재 상태: <span class="status-' + currentStatus.status.toLowerCase() + '">' + currentKoreanStatus + '</span>' +
+                    '</div>' +
+                    '<div class="elapsed-time">' +
+                        '시작일: ' + formatDate(currentStatus.startDate) +
+                    '</div>' +
+                '</div>' +
+                '<div class="recent-history">' +
+                    '<h5>최근 이력 (최근 5건)</h5>' +
+                    '<div class="history-list">' +
+                        historyHtml +
+                    '</div>' +
+                '</div>';
+        }
+        
+        // 날짜 포맷팅 함수
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ko-KR') + ' ' + date.toLocaleTimeString('ko-KR', {hour: '2-digit', minute: '2-digit'});
+        }
+        
+        //6번 위젯 
+        function sendChatbotQuestion() {
+    const q = document.getElementById("chatbot-question").value.trim();
+    if (!q) {
+        alert("질문을 입력하세요.");
+        return;
+    }
+
+    const url = "<c:url value='/chatbot/ask' />";
+
+    fetch(url, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({question: q})
+    })
+    .then(res => {
+        if (!res.ok) throw new Error(`HTTP Error! Status: ${res.status}`);
+        return res.json();
+    })
+    .then(data => {
+        document.getElementById("chatbot-response").innerText = data.answer;
+    })
+    .catch(error => {
+        document.getElementById("chatbot-response").innerText = `❌ 오류 발생: ${error.message}`;
+        console.error('Chatbot Error:', error);
+    });
+}
+
+        // 작업현황 하단 테이블 페이징 기능
+        let currentWorkPage = 1;
+        const workItemsPerPage = 4; // 한 페이지에 표시할 항목 수
+
+        // 작업현황 페이징 초기화
+        function initWorkStatusPagination() {
+            const productRows = document.querySelectorAll('.product-row');
+            const totalItems = productRows.length;
+            const totalPages = Math.ceil(totalItems / workItemsPerPage);
+            
+            if (totalPages <= 1) return; // 페이지가 1개 이하면 페이징 숨김
+            
+            // 페이징 컨트롤 생성
+            createWorkPaginationControls(totalPages);
+            
+            // 첫 페이지 표시
+            showWorkPage(1);
+        }
+
+        // 페이징 컨트롤 생성
+        function createWorkPaginationControls(totalPages) {
+            const productStatusTable = document.querySelector('.product-status-table');
+            
+            // 페이징 컨트롤 HTML 생성
+            const paginationHTML = `
+                <div class="work-pagination-controls">
+                    <button class="work-pagination-btn work-prev-btn" onclick="changeWorkPage(-1)" disabled>
+                        ◀ 이전
+                    </button>
+                    <span class="work-pagination-info">
+                        <span id="work-current-page">1</span> / <span id="work-total-pages">${totalPages}</span>
+                    </span>
+                    <button class="work-pagination-btn work-next-btn" onclick="changeWorkPage(1)">
+                        다음 ▶
+                    </button>
+                </div>
+            `;
+            
+            // 페이징 컨트롤을 테이블 뒤에 추가
+            productStatusTable.insertAdjacentHTML('afterend', paginationHTML);
+        }
+
+        // 페이지 변경
+        function changeWorkPage(direction) {
+            const productRows = document.querySelectorAll('.product-row');
+            const totalItems = productRows.length;
+            const totalPages = Math.ceil(totalItems / workItemsPerPage);
+            
+            // 현재 페이지 계산
+            currentWorkPage += direction;
+            
+            // 페이지 범위 체크
+            if (currentWorkPage < 1) currentWorkPage = 1;
+            if (currentWorkPage > totalPages) currentWorkPage = totalPages;
+            
+            // 페이지 표시
+            showWorkPage(currentWorkPage);
+            
+            // 버튼 상태 업데이트
+            updateWorkPaginationButtons(totalPages);
+        }
+
+        // 특정 페이지 표시
+        function showWorkPage(page) {
+            const productRows = document.querySelectorAll('.product-row');
+            
+            // 모든 항목 숨기기
+            productRows.forEach(row => {
+                row.style.display = 'none';
+            });
+            
+            // 현재 페이지 항목들만 표시
+            const startIndex = (page - 1) * workItemsPerPage;
+            const endIndex = startIndex + workItemsPerPage;
+            
+            for (let i = startIndex; i < endIndex && i < productRows.length; i++) {
+                productRows[i].style.display = 'flex';
+            }
+            
+            // 페이지 정보 업데이트
+            document.getElementById('work-current-page').textContent = page;
+        }
+
+        // 페이징 버튼 상태 업데이트
+        function updateWorkPaginationButtons(totalPages) {
+            const prevBtn = document.querySelector('.work-prev-btn');
+            const nextBtn = document.querySelector('.work-next-btn');
+            
+            // 이전 버튼 상태
+            if (currentWorkPage <= 1) {
+                prevBtn.disabled = true;
+                prevBtn.style.opacity = '0.5';
+            } else {
+                prevBtn.disabled = false;
+                prevBtn.style.opacity = '1';
+            }
+            
+            // 다음 버튼 상태
+            if (currentWorkPage >= totalPages) {
+                nextBtn.disabled = true;
+                nextBtn.style.opacity = '0.5';
+            } else {
+                nextBtn.disabled = false;
+                nextBtn.style.opacity = '1';
+            }
         }
     </script>
 </body>
