@@ -125,9 +125,8 @@ select, input[type="number"], input[type="text"] {
                     <select id="newUnit">
                         <option value="">-- 선택 --</option>
                         <option value="EA">EA</option>
-                        <option value="kg">kg</option>
-                        <option value="L">L</option>
-                        <option value="box">box</option>
+                        <option value="g">g</option>
+                        <option value="ml">ml</option>
                     </select>
                 </td>
 
@@ -154,9 +153,14 @@ select, input[type="number"], input[type="text"] {
                     <tr>
                         <td>${m.materialCode}</td>
                         <td>${m.materialName}</td>
-                        <td>
-                            <input type="text" name="unit" value="${m.unit}" data-product="${bom.productCode}" data-material="${m.materialCode}">
-                        </td>
+                <td>
+                    <select id="newUnit">
+                        <option value="">-- 선택 --</option>
+                        <option value="EA">EA</option>
+                        <option value="g">g</option>
+                        <option value="ml">ml</option>
+                    </select>
+                </td>
                         <td>
                             <input type="number" step="0.01" name="quantity" value="${m.quantity}" data-product="${bom.productCode}" data-material="${m.materialCode}">
                         </td>
@@ -170,10 +174,16 @@ select, input[type="number"], input[type="text"] {
         </table>
     </form>
 
-    <div class="btn-area">
-        <a href="/mes/bom2/list" class="btn btn-secondary">← 목록으로</a>
-    </div>
+<div class="btn-area">
+    <a href="/mes/bom2/list" class="btn btn-secondary">← 목록으로</a>
+<a href="/mes/bom2/deleteAll/${bom.productCode}"
+   class="btn btn-danger"
+   onclick="return confirm('이 BOM 전체를 삭제하시겠습니까?\n(모든 자재 내역이 함께 삭제됩니다.)')">
+   BOM 전체 삭제
+</a>
 </div>
+
+	
 
 <script>
 // ✅ 수정
@@ -199,24 +209,24 @@ document.querySelectorAll('.btn-save').forEach(btn => {
 });
 
 // ✅ 삭제
-document.querySelectorAll('.btn-delete').forEach(btn => {
-    btn.addEventListener('click', function() {
-        if (!confirm('이 자재를 삭제하시겠습니까?')) return;
-        const productCode = this.dataset.product;
-        const materialCode = this.dataset.material;
+// document.querySelectorAll('.btn-delete').forEach(btn => {
+//     btn.addEventListener('click', function() {
+//         if (!confirm('이 자재를 삭제하시겠습니까?')) return;
+//         const productCode = this.dataset.product;
+//         const materialCode = this.dataset.material;
 
-        fetch('/mes/bom2/deleteInline', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ productCode, materialCode })
-        })
-        .then(res => res.text())
-        .then(result => {
-            alert(result === 'success' ? '삭제 완료' : '삭제 실패');
-            if (result === 'success') location.reload();
-        });
-    });
-});
+//         fetch('/mes/bom2/deleteInline', {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ productCode, materialCode })
+//         })
+//         .then(res => res.text())
+//         .then(result => {
+//             alert(result === 'success' ? '삭제 완료' : '삭제 실패');
+//             if (result === 'success') location.reload();
+//         });
+//     });
+// });
 
 // ✅ 추가 (select형)
 document.getElementById('btnAddMaterial').addEventListener('click', function() {
@@ -245,6 +255,31 @@ document.getElementById('btnAddMaterial').addEventListener('click', function() {
         } else {
             alert('추가 실패');
         }
+    });
+});
+//✅ BOM 전체 삭제
+document.getElementById('btnDeleteBom').addEventListener('click', function() {
+    if (!confirm('이 BOM 전체를 삭제하시겠습니까?\n(모든 자재 내역이 함께 삭제됩니다.)')) return;
+
+    const productCode = "${bom.productCode}";
+
+    fetch('/mes/bom2/deleteBom', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productCode })
+    })
+    .then(res => res.text())
+    .then(result => {
+        if (result === 'success') {
+            alert('BOM 전체가 삭제되었습니다.');
+            location.href = '/mes/bom2/list';
+        } else {
+            alert('삭제 실패');
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('오류가 발생했습니다.');
     });
 });
 </script>

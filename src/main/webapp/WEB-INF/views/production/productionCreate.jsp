@@ -33,13 +33,6 @@
             margin: 0 auto;
         }
 
-        /* 제목 스타일 */
-        h2 {
-            margin-top: 0;
-            color: #2c3e50;
-            margin-bottom: 30px;
-            text-align: center;
-        }
 
         /* 폼 그룹 */
         .form-group {

@@ -170,13 +170,6 @@
             color: #d32f2f;
         }
 
-        /* 제목 스타일 */
-        h2 {
-            margin-top: 0;
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-
         .section-title {
             font-size: 18px;
             font-weight: 600;
@@ -504,7 +497,7 @@
                                             <span class="status status-${dailySchedule.status}">${dailySchedule.statusDisplayName}</span>
                                         </td>
                                         <td><fmt:formatDate value="${dailySchedule.plannedStartDate}" pattern="yyyy-MM-dd" /></td>
-                                        <td>${dailySchedule.workerId != null ? dailySchedule.workerId : '미배정'}</td>
+                                        <td>${dailySchedule.workerId != null ? dailySchedule.workerId : '관리자'}</td>
                                         <td>
                                             <a href="/mes/production/edit?lotNumber=${dailySchedule.parentLotNumber}" class="btn btn-warning">수정</a>
                                             <button onclick="startDailyProduction('${dailySchedule.dailyPlanId}')" class="btn btn-primary">작업시작</button>
@@ -548,23 +541,30 @@
          * 탭 전환 기능
          * @param {string} tabName - 표시할 탭 이름 (all-schedule, daily-schedule)
          */
-        function showTab(tabName) {
-            // 모든 탭 콘텐츠 숨기기
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // 모든 탭 버튼 비활성화
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            
-            // 선택된 탭 표시
-            document.getElementById(tabName + '-tab').classList.add('active');
-            
-            // 선택된 탭 버튼 활성화
-            event.target.classList.add('active');
-        }
+         function showTab(tabName, targetElement) {
+    // 모든 탭 콘텐츠 숨기기
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // 모든 탭 버튼 비활성화
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // 선택된 탭 표시
+    document.getElementById(tabName + '-tab').classList.add('active');
+    
+    // 선택된 탭 버튼 활성화 (targetElement가 있을 때만)
+    if (targetElement) {
+        targetElement.classList.add('active');
+    }
+    
+    // 금일 생산일정 탭으로 전환 시 페이징 초기화
+    if (tabName === 'daily-schedule') {
+        setTimeout(() => goToPage(1), 100); // DOM 업데이트 후 실행
+    }
+}
 
         /**
          * 전체 생산계획에서 금일 생산일정 생성
@@ -600,7 +600,7 @@
                     if (data.success) {
                         alert(data.message);
                         // 금일 생산일정 탭으로 전환
-                        showTab('daily-schedule');
+                        showTab('daily-schedule', document.querySelector('.tab-btn[onclick*="daily-schedule"]'));
                         location.reload();
                     } else {
                         alert(data.message);
@@ -619,13 +619,14 @@
          */
         function startDailyProduction(dailyPlanId) {
             if (confirm('금일 생산일정을 시작하시겠습니까?')) {
-                fetch('/mes/production/daily/start', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: 'dailyPlanId=' + encodeURIComponent(dailyPlanId)
-                })
+                fetch('/mes/production/daily/updateStatus', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'dailyPlanId=' + encodeURIComponent(dailyPlanId) + 
+          '&status=work'  // 상태를 'work'로 변경
+})
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
@@ -647,8 +648,82 @@
          * @param {number} pageNumber - 페이지 번호
          */
         function goToPage(pageNumber) {
-            alert('페이지 ' + pageNumber + '로 이동 - 추후 구현 예정');
+            // 금일 생산일정 탭이 활성화된 경우에만 페이징 적용
+            const dailyTab = document.getElementById('daily-schedule-tab');
+            if (!dailyTab.classList.contains('active')) {
+                return; // 금일 생산일정 탭이 아니면 페이징 안함
+            }
+            
+            const pageSize = 5;
+            const allRows = Array.from(document.querySelectorAll('#daily-schedule-tab tbody tr'));
+            const totalPages = Math.ceil(allRows.length / pageSize);
+            
+            if (pageNumber < 1 || pageNumber > totalPages) {
+                return;
+            }
+            
+            // 모든 행 숨기기
+            allRows.forEach(row => row.style.display = 'none');
+            
+            // 현재 페이지 행들만 표시
+            const startIndex = (pageNumber - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            
+            for (let i = startIndex; i < endIndex && i < allRows.length; i++) {
+                allRows[i].style.display = '';
+            }
+            
+            // 페이징 버튼 업데이트
+            updatePaginationButtons(pageNumber, totalPages);
         }
+
+        /**
+         * 페이징 버튼 업데이트
+         * @param {number} currentPage - 현재 페이지
+         * @param {number} totalPages - 전체 페이지 수
+         */
+        function updatePaginationButtons(currentPage, totalPages) {
+            const paginationDiv = document.querySelector('.pagination');
+            let html = '';
+            
+            // 이전 버튼
+            if (currentPage > 1) {
+                html += '<button class="btn btn-primary" onclick="goToPage(' + (currentPage - 1) + ')">이전</button>';
+            }
+            
+            // 페이지 번호들 (최대 5개)
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const activeClass = i === currentPage ? 'btn-success' : 'btn-primary';
+                html += '<button class="btn ' + activeClass + '" onclick="goToPage(' + i + ')">' + i + '</button>';
+            }
+            
+            // 다음 버튼
+            if (currentPage < totalPages) {
+                html += '<button class="btn btn-primary" onclick="goToPage(' + (currentPage + 1) + ')">다음</button>';
+            }
+            
+            // 페이지 정보
+            const allRows = document.querySelectorAll('#daily-schedule-tab tbody tr');
+            html += '<div style="margin-left: 20px; color: #666; font-size: 14px; display: inline-block;">';
+            html += '총 ' + allRows.length + '개 항목 (' + currentPage + '/' + totalPages + ' 페이지)';
+            html += '</div>';
+            
+            paginationDiv.innerHTML = html;
+        }
+
+        /**
+         * 페이지 로드 시 초기화
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            // 금일 생산일정 탭이 활성화된 경우 첫 페이지 표시
+            const dailyTab = document.getElementById('daily-schedule-tab');
+            if (dailyTab.classList.contains('active')) {
+                goToPage(1);
+            }
+        });
     </script>
 </body>
 </html>

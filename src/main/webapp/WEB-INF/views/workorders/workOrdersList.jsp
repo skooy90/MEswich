@@ -201,6 +201,15 @@
             background-color: #138496;
         }
 
+        .btn-warning {
+            background-color: #f39c12;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background-color: #e67e22;
+        }
+
         /* 상태 배지 */
         .status-badge {
             display: inline-block;
@@ -225,13 +234,6 @@
         .status-completed {
             background-color: #e8f5e8;
             color: #2e7d32;
-        }
-
-        /* 제목 스타일 */
-        h2 {
-            margin-top: 0;
-            color: #2c3e50;
-            margin-bottom: 20px;
         }
 
         /* 반응형 디자인 */
@@ -325,14 +327,19 @@
                                     <td>${workOrder.productName}</td>
                                     <td>${workOrder.plannedQty}개</td>
                                     <td>
-                                        <span class="status-badge status-ready">${workOrder.status}</span>
+                                        <span class="status-badge status-ready">
+                                        작업 전 
+                                        </span>
                                     </td>
-                                    <td>${workOrder.workerId != null ? workOrder.workerId : '미배정'}</td>
+                                    <td>${workOrder.workerId != null ? workOrder.workerId : '관리자'}</td>
                                     <td>
                                         <form method="post" action="/mes/work/startWork" style="display: inline;">
                                             <input type="hidden" name="workOrderNo" value="${workOrder.workOrderNo}">
                                             <button type="submit" class="action-btn btn-primary">작업진행</button>
                                         </form>
+                                            <a href="/mes/bom2/detail/${workOrder.productCode}">
+                                            <button type="submit" class="action-btn btn-primary">BOM보기</button>
+                                            </a>
                                     </td>
                                 </tr>
                             </c:if>
@@ -383,9 +390,9 @@
                                         </c:choose>
                                     </td>
                                     <td>
-                                        <span class="status-badge status-in-progress">${workOrder.status}</span>
+                                        <span class="status-badge status-in-progress">진행중 </span>
                                     </td>
-                                    <td>${workOrder.workerId != null ? workOrder.workerId : '미배정'}</td>
+                                    <td>${workOrder.workerId != null ? workOrder.workerId : '관리자'}</td>
                                     <td>
                                         <form method="post" action="/mes/work/updateProduction" style="display: inline;">
                                             <input type="hidden" name="workOrderNo" value="${workOrder.workOrderNo}">
@@ -437,15 +444,20 @@
                                 <tr>
                                     <td><strong>${workOrder.workOrderNo}</strong></td>
                                     <td>${workOrder.lotNumber}</td>
-                                    <td>${workOrder.productName}</td>
+                                    <td>
+                                        <a href="/mes/work/detail?workOrderNo=${workOrder.workOrderNo}" 
+                                           style="color: #3498db; text-decoration: none; font-weight: bold;">
+                                            ${workOrder.productName}
+                                        </a>
+                                    </td>
                                     <td>${workOrder.plannedQty}개</td>
                                     <td>
                                         <strong style="color: #27ae60;">${workOrder.actualQty != null ? workOrder.actualQty : 0}개</strong>
                                     </td>
                                     <td>
-                                        <span class="status-badge status-completed">${workOrder.status}</span>
+                                        <span class="status-badge status-completed">완료</span>
                                     </td>
-                                    <td>${workOrder.workerId != null ? workOrder.workerId : '미배정'}</td>
+                                    <td>${workOrder.workerId != null ? workOrder.workerId : '관리자'}</td>
                                     <td>
                                         <c:choose>
                                             <c:when test="${not empty workOrder.endDate}">
@@ -455,8 +467,16 @@
                                         </c:choose>
                                     </td>
                                     <td>
-                                        <a href="/mes/work/detail?workOrderNo=${workOrder.workOrderNo}" class="action-btn btn-primary" 
-                                           style="text-decoration: none; display: inline-block; text-align: center;">상세보기</a>
+                                        <form method="post" action="/mes/work/transferToQuality" style="display: inline;">
+                                            <input type="hidden" name="workOrderNo" value="${workOrder.workOrderNo}">
+                                            <button type="submit" class="action-btn btn-info" 
+                                                    onclick="return confirm('품질관리로 전달하시겠습니까?')">품질관리로 보내기</button>
+                                        </form>
+                                        <form method="post" action="/mes/work/backToWork" style="display: inline;">
+                                            <input type="hidden" name="workOrderNo" value="${workOrder.workOrderNo}">
+                                            <button type="submit" class="action-btn btn-warning" 
+                                                    onclick="return confirm('작업 중 상태로 돌아가시겠습니까?')">작업 중으로</button>
+                                        </form>
                                     </td>
                                 </tr>
                             </c:if>

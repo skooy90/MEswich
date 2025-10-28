@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.or.mes.dao.ProcessRouting2DAO">
+
+    <!-- 전체 조회 -->
+    <select id="selectAll" resultType="kr.or.mes.dto.ProcessRouting2DTO">
+        SELECT
+            r.routing_id AS routingId,
+            r.product_code AS productCode,
+            s.item_name AS productName,
+            r.operation_seq AS operationSeq,
+            r.operation_code AS operationCode,
+            r.operation_name AS operationName,
+            r.standard_time AS standardTime,
+            r.created_date AS createdDate,
+            r.updated_date AS updatedDate,
+            r.created_by AS createdBy,
+            r.updated_by AS updatedBy,
+            r.operation_desc AS operationDesc
+        FROM Process_Routing2 r
+        LEFT JOIN Standard2 s ON r.product_code = s.item_code
+        ORDER BY r.routing_id ASC
+    </select>
+
+    <!-- 단건 조회 -->
+    <select id="selectById" parameterType="int" resultType="kr.or.mes.dto.ProcessRouting2DTO">
+        SELECT
+            r.routing_id AS routingId,
+            r.product_code AS productCode,
+            s.item_name AS productName,
+            r.operation_seq AS operationSeq,
+            r.operation_code AS operationCode,
+            r.operation_name AS operationName,
+            r.standard_time AS standardTime,
+            r.created_date AS createdDate,
+            r.updated_date AS updatedDate,
+            r.created_by AS createdBy,
+            r.updated_by AS updatedBy,
+            r.operation_desc AS operationDesc
+        FROM Process_Routing2 r
+        LEFT JOIN Standard2 s ON r.product_code = s.item_code
+        WHERE r.routing_id = #{routingId}
+    </select>
+    
+    <!-- 제품별 대표 정보만 표시 -->
+<select id="selectDistinctProducts" resultType="kr.or.mes.dto.ProcessRouting2DTO">
+    SELECT DISTINCT
+        r.product_code AS productCode,
+        s.item_name AS productName,
+        r.created_by AS createdBy,
+        r.created_date AS createdDate
+    FROM Process_Routing2 r
+    LEFT JOIN Standard2 s ON r.product_code = s.item_code
+    ORDER BY r.product_code
+</select>
+
+<!-- 제품코드별 공정 전체 조회 -->
+<select id="selectByProductCode" parameterType="string" resultType="kr.or.mes.dto.ProcessRouting2DTO">
+    SELECT
+        r.routing_id AS routingId,
+        r.product_code AS productCode,
+        s.item_name AS productName,
+        r.operation_seq AS operationSeq,
+        r.operation_code AS operationCode,
+        r.operation_name AS operationName,
+        r.standard_time AS standardTime,
+        r.created_date AS createdDate,
+        r.updated_date AS updatedDate,
+        r.created_by AS createdBy,
+        r.updated_by AS updatedBy,
+        r.operation_desc AS operationDesc
+    FROM Process_Routing2 r
+    LEFT JOIN Standard2 s ON r.product_code = s.item_code
+    WHERE r.product_code = #{productCode}
+    ORDER BY r.operation_seq ASC
+</select>
+    
+
+    <!-- 등록 -->
+    <insert id="insert" parameterType="kr.or.mes.dto.ProcessRouting2DTO">
+        INSERT INTO Process_Routing2 (
+            routing_id, product_code, operation_seq, operation_code, 
+            operation_name, standard_time, created_date, created_by, operation_desc
+        ) VALUES (
+            seq_routing2.NEXTVAL,
+            #{productCode}, #{operationSeq}, #{operationCode},
+            #{operationName}, #{standardTime}, SYSDATE, #{createdBy}, #{operationDesc}
+        )
+    </insert>
+
+    <!-- 수정 -->
+    <update id="update" parameterType="kr.or.mes.dto.ProcessRouting2DTO">
+        UPDATE Process_Routing2
+        SET
+            product_code = #{productCode},
+            operation_seq = #{operationSeq},
+            operation_code = #{operationCode},
+            operation_name = #{operationName},
+            standard_time = #{standardTime},
+            updated_date = SYSDATE,
+            updated_by = #{updatedBy},
+            operation_desc = #{operationDesc}
+        WHERE routing_id = #{routingId}
+    </update>
+
+    <!-- 삭제 -->
+    <delete id="delete" parameterType="int">
+        DELETE FROM Process_Routing2 WHERE routing_id = #{routingId}
+    </delete>
+
+</mapper>
+
+

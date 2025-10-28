@@ -102,4 +102,77 @@
 </style>
 
 </body>
+<script>
+    /**
+     * 페이지네이션 기능
+     * @param {number} pageNumber - 페이지 번호
+     */
+    function goToPage(pageNumber) {
+        const pageSize = 10;
+        const allRows = Array.from(document.querySelectorAll('.list-table tbody tr'));
+        const totalPages = Math.ceil(allRows.length / pageSize);
+        
+        if (pageNumber < 1 || pageNumber > totalPages) {
+            return;
+        }
+        
+        // 모든 행 숨기기
+        allRows.forEach(row => row.style.display = 'none');
+        
+        // 현재 페이지 행들만 표시
+        const startIndex = (pageNumber - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        
+        for (let i = startIndex; i < endIndex && i < allRows.length; i++) {
+            allRows[i].style.display = '';
+        }
+        
+        // 페이징 버튼 업데이트
+        updatePaginationButtons(pageNumber, totalPages);
+    }
+
+    /**
+     * 페이징 버튼 업데이트
+     * @param {number} currentPage - 현재 페이지
+     * @param {number} totalPages - 전체 페이지 수
+     */
+    function updatePaginationButtons(currentPage, totalPages) {
+        const paginationDiv = document.querySelector('.pagination');
+        let html = '';
+        
+        // 이전 버튼
+        if (currentPage > 1) {
+            html += '<a href="#" class="page-btn" onclick="goToPage(' + (currentPage - 1) + '); return false;">«</a>';
+        }
+        
+        // 페이지 번호들 (최대 10개)
+        const startPage = Math.max(1, currentPage - 2);
+        const endPage = Math.min(totalPages, currentPage + 2);
+        
+        for (let i = startPage; i <= endPage; i++) {
+            const activeClass = i === currentPage ? 'active' : '';
+            html += '<a href="#" class="page-btn ' + activeClass + '" onclick="goToPage(' + i + '); return false;">' + i + '</a>';
+        }
+        
+        // 다음 버튼
+        if (currentPage < totalPages) {
+            html += '<a href="#" class="page-btn" onclick="goToPage(' + (currentPage + 1) + '); return false;">»</a>';
+        }
+        
+        // 페이지 정보
+        const allRows = document.querySelectorAll('.list-table tbody tr');
+        html += '<div style="margin-left: 20px; color: #666; font-size: 14px; display: inline-block;">';
+        html += '총 ' + allRows.length + '개 항목 (' + currentPage + '/' + totalPages + ' 페이지)';
+        html += '</div>';
+        
+        paginationDiv.innerHTML = html;
+    }
+
+    /**
+     * 페이지 로드 시 초기화
+     */
+    document.addEventListener('DOMContentLoaded', function() {
+        goToPage(1);
+    });
+</script>
 </html>

@@ -34,15 +34,6 @@
             margin: 0 auto;
         }
 
-        /* 제목 스타일 */
-        h2 {
-            margin-top: 0;
-            color: #2c3e50;
-            margin-bottom: 30px;
-            text-align: center;
-            border-bottom: 2px solid #ffc107;
-            padding-bottom: 10px;
-        }
 
         /* 정보 표시 영역 */
         .info-section {

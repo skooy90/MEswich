@@ -227,12 +227,6 @@
             background-color: #138496;
         }
 
-        /* 제목 스타일 */
-        h2 {
-            margin-top: 0;
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
 
         /* 반응형 디자인 */
         @media (max-width: 768px) {
@@ -309,9 +303,9 @@
                     <thead>
                         <tr>
                             <th>검사번호</th>
-                            <th>작업지시번호</th>
                             <th>LOT번호</th>
                             <th>제품명</th>
+                            <th>제품수량</th>
                             <th>상태</th>
                             <th>생성일</th>
                             <th>기능</th>
@@ -324,10 +318,10 @@
                                     <c:if test="${item.status == 'PENDING'}">
                                         <tr>
                                             <td>${item.inspectionNo}</td>
-                                            <td>${item.workOrderNo}</td>
                                             <td>${item.lotNumber}</td>
                                             <td>${item.productName}</td>
-                                            <td><span style="color: #f39c12; font-weight: bold;">${item.status}</span></td>
+                                            <td><strong style="color: #2c3e50;">${item.plannedQty != null ? item.plannedQty : 0}개</strong></td>
+                                            <td><span style="color: #f39c12; font-weight: bold;">검사 대기</span></td>
                                             <td><fmt:formatDate value="${item.createdDate}" pattern="yyyy-MM-dd" /></td>
                                             <td>
                                                 <form method="post" action="/mes/quality/startInspection" style="display: inline;">
@@ -359,9 +353,9 @@
                     <thead>
                         <tr>
                             <th>검사번호</th>
-                            <th>작업지시번호</th>
                             <th>LOT번호</th>
                             <th>제품명</th>
+                            <th>제품수량</th>
                             <th>검사자</th>
                             <th>상태</th>
                             <th>생성일</th>
@@ -375,14 +369,25 @@
                                     <c:if test="${item.status == 'HOLD'}">
                                         <tr>
                                             <td>${item.inspectionNo}</td>
-                                            <td>${item.workOrderNo}</td>
                                             <td>${item.lotNumber}</td>
                                             <td>${item.productName}</td>
+                                            <td><strong style="color: #2c3e50;">${item.plannedQty != null ? item.plannedQty : 0}개</strong></td>
                                             <td>${item.inspectorName}</td>
-                                            <td><span style="color: #3498db; font-weight: bold;">${item.status}</span></td>
+                                            <td><span style="color: #3498db; font-weight: bold;">검사중</span></td>
                                             <td><fmt:formatDate value="${item.createdDate}" pattern="yyyy-MM-dd" /></td>
                                             <td>
-                                                <a href="/mes/quality/completeInspection?inspectionNo=${item.inspectionNo}" class="btn btn-success">검사완료</a>
+                                                <form method="post" action="/mes/quality/completeInspection" style="display: inline;">
+                                                    <input type="hidden" name="inspectionNo" value="${item.inspectionNo}">
+                                                    <input type="number" name="goodQty" placeholder="양품수량" required min="0" max="${item.plannedQty != null ? item.plannedQty : 999999}" style="width: 80px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; margin-right: 5px;">
+                                                    <input type="number" name="defectQty" placeholder="불량수량" min="0" value="0" style="width: 80px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; margin-right: 5px;">
+                                                    <select name="defectReason"  style="width: 120px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; margin-right: 5px;">
+                                                    	<option value="설비결함">설비결함</option>
+                                                    	<option value="포장불량">포장불량</option>
+                                                    	<option value="모형문제">모형문제</option>
+                                                    </select>
+<!--                                                     <input type="select" name="defectReason" placeholder="불량사유" style="width: 120px; padding: 4px; border: 1px solid #ddd; border-radius: 3px; margin-right: 5px;"> -->
+                                                    <button type="submit" class="btn btn-success">검사완료</button>
+                                                </form>
                                             </td>
                                         </tr>
                                     </c:if>
@@ -407,9 +412,9 @@
                     <thead>
                         <tr>
                             <th>검사번호</th>
-                            <th>작업지시번호</th>
                             <th>LOT번호</th>
                             <th>제품명</th>
+                            <th>제품수량</th>
                             <th>양품수량</th>
                             <th>검사자</th>
                             <th>상태</th>
@@ -424,15 +429,18 @@
                                     <c:if test="${item.status == 'PASS'}">
                                         <tr>
                                             <td>${item.inspectionNo}</td>
-                                            <td>${item.workOrderNo}</td>
                                             <td>${item.lotNumber}</td>
                                             <td>${item.productName}</td>
+                                            <td><strong style="color: #2c3e50;">${item.plannedQty != null ? item.plannedQty : 0}개</strong></td>
                                             <td>${item.goodQty != null ? item.goodQty : 0}개</td>
                                             <td>${item.inspectorName}</td>
-                                            <td><span style="color: #27ae60; font-weight: bold;">${item.status}</span></td>
+                                            <td><span style="color: #27ae60; font-weight: bold;">완품</span></td>
                                             <td><fmt:formatDate value="${item.inspectionDate}" pattern="yyyy-MM-dd" /></td>
                                             <td>
-                                                <a href="/mes/quality/transferToInventory?inspectionNo=${item.inspectionNo}" class="btn btn-info">재고전달</a>
+                                                <form method="post" action="/mes/quality/registerGoodInventory" style="display: inline;">
+                                                    <input type="hidden" name="inspectionNo" value="${item.inspectionNo}">
+                                                    <button type="submit" class="btn btn-success">재고등록</button>
+                                                </form>
                                             </td>
                                         </tr>
                                     </c:if>
@@ -457,9 +465,9 @@
                     <thead>
                         <tr>
                             <th>검사번호</th>
-                            <th>작업지시번호</th>
                             <th>LOT번호</th>
                             <th>제품명</th>
+                            <th>제품수량</th>
                             <th>불량수량</th>
                             <th>불량사유</th>
                             <th>검사자</th>
@@ -475,16 +483,19 @@
                                     <c:if test="${item.status == 'FAIL'}">
                                         <tr>
                                             <td>${item.inspectionNo}</td>
-                                            <td>${item.workOrderNo}</td>
                                             <td>${item.lotNumber}</td>
                                             <td>${item.productName}</td>
+                                            <td><strong style="color: #2c3e50;">${item.plannedQty != null ? item.plannedQty : 0}개</strong></td>
                                             <td>${item.defectQty != null ? item.defectQty : 0}개</td>
                                             <td>${item.defectReason != null ? item.defectReason : '-'}</td>
                                             <td>${item.inspectorName}</td>
-                                            <td><span style="color: #e74c3c; font-weight: bold;">${item.status}</span></td>
+                                            <td><span style="color: #e74c3c; font-weight: bold;">불량</span></td>
                                             <td><fmt:formatDate value="${item.inspectionDate}" pattern="yyyy-MM-dd" /></td>
                                             <td>
-                                                <a href="/mes/quality/detail?inspectionNo=${item.inspectionNo}" class="btn btn-primary">상세보기</a>
+                                                <form method="post" action="/mes/quality/processDefect" style="display: inline;">
+                                                    <input type="hidden" name="inspectionNo" value="${item.inspectionNo}">
+                                                    <button type="submit" class="btn btn-danger">불량처리</button>
+                                                </form>
                                             </td>
                                         </tr>
                                     </c:if>
